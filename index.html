@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<div id="g_id_onload"
+     data-client_id="553436437827-hdp6q3siq48d3peq4090bssvjroqtbkr.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<div class="g_id_signin"></div>
+
+<script>
+function handleCredentialResponse(response) {
+    console.log(response.credential);
+
+    const payload = JSON.parse(
+        atob(response.credential.split('.')[1])
+    );
+
+    alert("Welcome " + payload.name);
+    console.log(payload);
+}
+</script>
+
+</body>
+</html>
