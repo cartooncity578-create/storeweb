@@ -56,7 +56,7 @@
     </div>
 
     <script>
-        // Load price
+        // Load amount from localStorage
         document.getElementById('display-amount').innerText = localStorage.getItem('checkout_pack_price') || '0.00';
 
         function showSteps(el, method, number) {
@@ -80,9 +80,11 @@
             if (!txid) return alert("Please enter Transaction ID!");
             if (!method) return alert("Please select a payment method!");
 
+            // UI Switch
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('status-screen').classList.remove('hidden');
 
+            // Data Preparation
             let formData = new FormData();
             formData.append('amount', localStorage.getItem('checkout_pack_price') || '0');
             formData.append('username', localStorage.getItem('checkout_roblox_id') || '');
@@ -95,23 +97,30 @@
             formData.append('txid', txid);
             formData.append('method', method);
 
+            // API Call
             fetch('http://swift11.infinityfreeapp.com/save_order.php', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.text())
-            .then(() => {
-                document.getElementById('spinner').classList.add('hidden');
-                document.getElementById('status-text').innerText = "Payment Verified! ✅";
-                document.getElementById('status-text').classList.add('text-green-600');
-                
-                setTimeout(() => {
-                    localStorage.clear();
-                    window.location.href = "index.html";
-                }, 3000);
+            .then(data => {
+                // Check if response is Success
+                if (data.trim() === "Success") {
+                    document.getElementById('spinner').classList.add('hidden');
+                    document.getElementById('status-text').innerText = "Payment Verified! ✅";
+                    document.getElementById('status-text').classList.add('text-green-600');
+                    setTimeout(() => {
+                        localStorage.clear();
+                        window.location.href = "index.html";
+                    }, 3000);
+                } else {
+                    alert("Error: " + data);
+                    document.getElementById('main-container').classList.remove('hidden');
+                    document.getElementById('status-screen').classList.add('hidden');
+                }
             })
-            .catch(() => {
-                alert("Error: Data could not be saved. Please try again.");
+            .catch(error => {
+                alert("Network Error: Data could not be sent.");
                 document.getElementById('main-container').classList.remove('hidden');
                 document.getElementById('status-screen').classList.add('hidden');
             });
