@@ -16,8 +16,7 @@
 
     <!-- Main Container -->
     <div id="main-container" class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 fade-in">
-        <h2 class="text-2xl font-extrabold text-center text-slate-800 mb-2">ZubayGames</h2>
-        <p class="text-center text-slate-400 text-sm mb-6">Secure Payment Portal</p>
+        <h2 class="text-2xl font-extrabold text-center text-slate-800 mb-6">ZubayGames</h2>
 
         <div class="bg-blue-600 text-white p-5 rounded-2xl text-center mb-8 shadow-lg shadow-blue-200">
             <p class="text-xs uppercase font-bold tracking-widest opacity-80">Total Amount</p>
@@ -36,11 +35,17 @@
         </div>
 
         <div id="instruction-box" class="hidden bg-slate-50 p-6 rounded-2xl border border-slate-100 text-sm text-slate-600 space-y-4">
-            <p class="leading-relaxed">• Open your <b id="method-name" class="text-slate-800"></b> App & select <b>Send Money</b>.</p>
-            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+            <ul class="list-disc ml-4 space-y-2 font-medium text-slate-700">
+                <li>Open your <span id="method-name"></span> App</li>
+                <li>Select Send Money</li>
+                <li>Pay And Give Transaction ID</li>
+            </ul>
+            
+            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 mt-4">
                 <span class="font-mono font-bold text-slate-800" id="copy-number">00000000000</span>
                 <button onclick="copyToClipboard()" class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-lg hover:bg-blue-100">COPY</button>
             </div>
+            
             <input type="text" id="txid" placeholder="Paste Transaction ID here" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
             <button onclick="processPayment()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">VERIFY PAYMENT</button>
         </div>
