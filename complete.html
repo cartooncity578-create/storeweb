@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZubayGames Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .method-card { border: 2px solid #e5e7eb; cursor: pointer; transition: 0.3s; }
+        .method-card.active { border-color: #0057d0; background: #f0f7ff; }
+        #instruction-box { display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 flex justify-center">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ZubayGames</h2>
+
+        <div class="bg-blue-600 text-white p-4 rounded-xl text-center mb-6 shadow-lg">
+            <p class="text-sm opacity-80">Total Amount to Pay</p>
+            <h1 class="text-3xl font-black">৳ <span id="display-amount">0.00</span></h1>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="method-card p-4 rounded-xl text-center" onclick="showSteps(this, 'bKash', '01720960851')">
+                <img src="https://pay.unigamebd.com/assets/gateways/bkash/bkashpersonal.png" class="h-8 mx-auto mb-2">
+                <p class="text-xs font-bold">bKash</p>
+            </div>
+            <div class="method-card p-4 rounded-xl text-center" onclick="showSteps(this, 'Nagad', '01720960851')">
+                <img src="https://pay.unigamebd.com/assets/gateways/nagad/nagadpersonal.png" class="h-8 mx-auto mb-2">
+                <p class="text-xs font-bold">Nagad</p>
+            </div>
+        </div>
+
+        <div id="instruction-box" class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-sm space-y-3 text-gray-700">
+            <p>• Go to your <b id="method-name"></b> App.</p>
+            <p>• Choose: <b>Send Money</b></p>
+            <div class="flex items-center justify-between bg-white p-2 rounded border">
+                <span>Number: <b id="copy-number"></b></span>
+                <button onclick="copyToClipboard()" class="text-blue-600 text-xs font-bold bg-blue-100 px-2 py-1 rounded">COPY</button>
+            </div>
+            <p>• Enter Amount: <b><span id="instruction-amount"></span> BDT</b></p>
+            <p>• Now enter your PIN to confirm.</p>
+            <input type="text" id="txid" placeholder="Enter Transaction ID" class="w-full p-2 border rounded mt-2">
+            <button id="verifyBtn" onclick="processPayment()" class="w-full bg-[#0057d0] text-white py-3 rounded-xl font-bold mt-2 transition">VERIFY</button>
+        </div>
+    </div>
+
+    <script>
+        const price = localStorage.getItem('checkout_pack_price') || '0.00';
+        document.getElementById('display-amount').innerText = price;
+        document.getElementById('instruction-amount').innerText = price;
+
+        function showSteps(el, method, number) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('instruction-box').style.display = 'block';
+            document.getElementById('method-name').innerText = method;
+            document.getElementById('copy-number').innerText = number;
+        }
+
+        function copyToClipboard() {
+            const num = document.getElementById('copy-number').innerText;
+            navigator.clipboard.writeText(num);
+            alert("Number copied: " + num);
+        }
+
+        function processPayment() {
+            const btn = document.getElementById('verifyBtn');
+            const txid = document.getElementById('txid').value;
+            
+            if(!txid) return alert("Please enter Transaction ID!");
+            
+            btn.innerText = "Processing...";
+            btn.classList.add('bg-gray-500');
+
+            setTimeout(() => {
+                btn.innerText = "COMPLETE PAYMENT";
+                btn.classList.remove('bg-gray-500', 'bg-[#0057d0]');
+                btn.classList.add('bg-green-600', 'animate-pulse');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
