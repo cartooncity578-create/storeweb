@@ -3,63 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZubayGames Checkout</title>
+    <title>ZubayGames Secure Checkout</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .method-card { border: 2px solid #e5e7eb; cursor: pointer; transition: 0.3s; }
-        .method-card.active { border-color: #0057d0; background: #f0f7ff; }
-        #instruction-box { display: none; }
+        .method-card { border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.3s ease; }
+        .method-card.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.02); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 flex justify-center items-center">
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
     <!-- Main Container -->
-    <div id="main-container" class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
-        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ZubayGames</h2>
+    <div id="main-container" class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 fade-in">
+        <h2 class="text-2xl font-extrabold text-center text-slate-800 mb-2">ZubayGames</h2>
+        <p class="text-center text-slate-400 text-sm mb-6">Secure Payment Portal</p>
 
-        <div class="bg-blue-600 text-white p-4 rounded-xl text-center mb-6 shadow-lg">
-            <p class="text-sm opacity-80">Total Amount to Pay</p>
-            <h1 class="text-3xl font-black">৳ <span id="display-amount">0.00</span></h1>
+        <div class="bg-blue-600 text-white p-5 rounded-2xl text-center mb-8 shadow-lg shadow-blue-200">
+            <p class="text-xs uppercase font-bold tracking-widest opacity-80">Total Amount</p>
+            <h1 class="text-4xl font-black mt-1">৳ <span id="display-amount">0.00</span></h1>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="method-card p-4 rounded-xl text-center" onclick="showSteps(this, 'bKash', '01720960851')">
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="method-card p-4 rounded-2xl text-center" onclick="showSteps(this, 'bKash', '01720960851')">
                 <img src="https://pay.unigamebd.com/assets/gateways/bkash/bkashpersonal.png" class="h-8 mx-auto mb-2">
-                <p class="text-xs font-bold">bKash</p>
+                <p class="text-xs font-bold text-slate-700">bKash</p>
             </div>
-            <div class="method-card p-4 rounded-xl text-center" onclick="showSteps(this, 'Nagad', '01720960851')">
+            <div class="method-card p-4 rounded-2xl text-center" onclick="showSteps(this, 'Nagad', '01720960851')">
                 <img src="https://pay.unigamebd.com/assets/gateways/nagad/nagadpersonal.png" class="h-8 mx-auto mb-2">
-                <p class="text-xs font-bold">Nagad</p>
+                <p class="text-xs font-bold text-slate-700">Nagad</p>
             </div>
         </div>
 
-        <div id="instruction-box" class="bg-gray-50 p-5 rounded-xl border border-gray-200 text-sm space-y-3 text-gray-700">
-            <p>• Go to your <b id="method-name"></b> App.</p>
-            <p>• Choose: <b>Send Money</b></p>
-            <div class="flex items-center justify-between bg-white p-2 rounded border">
-                <span>Number: <b id="copy-number"></b></span>
-                <button onclick="copyToClipboard()" class="text-blue-600 text-xs font-bold bg-blue-100 px-2 py-1 rounded">COPY</button>
+        <div id="instruction-box" class="hidden bg-slate-50 p-6 rounded-2xl border border-slate-100 text-sm text-slate-600 space-y-4">
+            <p class="leading-relaxed">• Open your <b id="method-name" class="text-slate-800"></b> App & select <b>Send Money</b>.</p>
+            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                <span class="font-mono font-bold text-slate-800" id="copy-number">00000000000</span>
+                <button onclick="copyToClipboard()" class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-lg hover:bg-blue-100">COPY</button>
             </div>
-            <p>• Enter Amount: <b><span id="instruction-amount"></span> BDT</b></p>
-            <input type="text" id="txid" placeholder="Enter Transaction ID" class="w-full p-2 border rounded mt-2">
-            <button onclick="processPayment()" class="w-full bg-[#0057d0] text-white py-3 rounded-xl font-bold mt-2">VERIFY</button>
+            <input type="text" id="txid" placeholder="Paste Transaction ID here" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="processPayment()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">VERIFY PAYMENT</button>
         </div>
     </div>
 
-    <!-- Status Screen (Initially Hidden) -->
-    <div id="status-screen" class="hidden text-center">
-        <h1 id="status-text" class="text-2xl font-bold text-gray-800">Processing...</h1>
+    <!-- Status Screen -->
+    <div id="status-screen" class="hidden w-full max-w-sm text-center p-8">
+        <div id="spinner" class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <h1 id="status-text" class="text-xl font-bold text-slate-700">Processing transaction...</h1>
     </div>
 
     <script>
         const price = localStorage.getItem('checkout_pack_price') || '0.00';
         document.getElementById('display-amount').innerText = price;
-        document.getElementById('instruction-amount').innerText = price;
 
         function showSteps(el, method, number) {
             document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            document.getElementById('instruction-box').style.display = 'block';
+            document.getElementById('instruction-box').classList.remove('hidden');
             document.getElementById('method-name').innerText = method;
             document.getElementById('copy-number').innerText = number;
         }
@@ -67,20 +67,16 @@
         function copyToClipboard() {
             const num = document.getElementById('copy-number').innerText;
             navigator.clipboard.writeText(num);
-            alert("Number copied: " + num);
+            alert("Number copied!");
         }
 
         function processPayment() {
-            if(!document.getElementById('txid').value) return alert("Enter TxID!");
-            
-            // Step 1: Hide main container
-            document.getElementById('main-container').style.display = 'none';
-            // Step 2: Show status screen
-            document.getElementById('status-screen').style.display = 'block';
-
-            // Step 3: Wait 4 seconds then complete
+            if(!document.getElementById('txid').value) return alert("Please enter Transaction ID!");
+            document.getElementById('main-container').classList.add('hidden');
+            document.getElementById('status-screen').classList.remove('hidden');
             setTimeout(() => {
-                document.getElementById('status-text').innerText = "Payment Complete!";
+                document.getElementById('spinner').classList.add('hidden');
+                document.getElementById('status-text').innerText = "Payment Complete! ✅";
                 document.getElementById('status-text').classList.add('text-green-600');
             }, 4000);
         }
