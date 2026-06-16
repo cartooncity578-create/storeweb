@@ -42,7 +42,7 @@
             </ul>
             
             <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 mt-4">
-                <span class="font-mono font-bold text-slate-800" id="copy-number">00000000000</span>
+                <span class="font-mono font-bold text-slate-800" id="copy-number">01720960851</span>
                 <button onclick="copyToClipboard()" class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-lg hover:bg-blue-100">COPY</button>
             </div>
             
@@ -72,13 +72,31 @@
         function copyToClipboard() {
             const num = document.getElementById('copy-number').innerText;
             navigator.clipboard.writeText(num);
-            alert("Number copied!");
+            alert("Number copied: " + num);
         }
 
         function processPayment() {
-            if(!document.getElementById('txid').value) return alert("Please enter Transaction ID!");
+            let txid = document.getElementById('txid').value;
+            let method = document.getElementById('method-name').innerText;
+            let amount = document.getElementById('display-amount').innerText;
+
+            if(!txid) return alert("Please enter Transaction ID!");
+
+            // Backend ko data bhej rahe hain
+            let formData = new FormData();
+            formData.append('method', method);
+            formData.append('amount', amount);
+            formData.append('txid', txid);
+
+            fetch('save_order.php', { 
+                method: 'POST', 
+                body: formData 
+            });
+
+            // UI Update
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('status-screen').classList.remove('hidden');
+            
             setTimeout(() => {
                 document.getElementById('spinner').classList.add('hidden');
                 document.getElementById('status-text').innerText = "Payment Complete! ✅";
