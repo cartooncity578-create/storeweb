@@ -11,9 +11,10 @@
         #instruction-box { display: none; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-4 flex justify-center">
+<body class="bg-gray-100 min-h-screen p-4 flex justify-center items-center">
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+    <!-- Main Container -->
+    <div id="main-container" class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ZubayGames</h2>
 
         <div class="bg-blue-600 text-white p-4 rounded-xl text-center mb-6 shadow-lg">
@@ -40,10 +41,14 @@
                 <button onclick="copyToClipboard()" class="text-blue-600 text-xs font-bold bg-blue-100 px-2 py-1 rounded">COPY</button>
             </div>
             <p>• Enter Amount: <b><span id="instruction-amount"></span> BDT</b></p>
-            <p>• Now enter your PIN to confirm.</p>
             <input type="text" id="txid" placeholder="Enter Transaction ID" class="w-full p-2 border rounded mt-2">
-            <button id="verifyBtn" onclick="processPayment()" class="w-full bg-[#0057d0] text-white py-3 rounded-xl font-bold mt-2 transition">VERIFY</button>
+            <button onclick="processPayment()" class="w-full bg-[#0057d0] text-white py-3 rounded-xl font-bold mt-2">VERIFY</button>
         </div>
+    </div>
+
+    <!-- Status Screen (Initially Hidden) -->
+    <div id="status-screen" class="hidden text-center">
+        <h1 id="status-text" class="text-2xl font-bold text-gray-800">Processing...</h1>
     </div>
 
     <script>
@@ -66,19 +71,18 @@
         }
 
         function processPayment() {
-            const btn = document.getElementById('verifyBtn');
-            const txid = document.getElementById('txid').value;
+            if(!document.getElementById('txid').value) return alert("Enter TxID!");
             
-            if(!txid) return alert("Please enter Transaction ID!");
-            
-            btn.innerText = "Processing...";
-            btn.classList.add('bg-gray-500');
+            // Step 1: Hide main container
+            document.getElementById('main-container').style.display = 'none';
+            // Step 2: Show status screen
+            document.getElementById('status-screen').style.display = 'block';
 
+            // Step 3: Wait 4 seconds then complete
             setTimeout(() => {
-                btn.innerText = "COMPLETE PAYMENT";
-                btn.classList.remove('bg-gray-500', 'bg-[#0057d0]');
-                btn.classList.add('bg-green-600', 'animate-pulse');
-            }, 2000);
+                document.getElementById('status-text').innerText = "Payment Complete!";
+                document.getElementById('status-text').classList.add('text-green-600');
+            }, 4000);
         }
     </script>
 </body>
