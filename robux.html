@@ -22,7 +22,7 @@
         <div class="w-full h-64 bg-cover bg-center rounded-2xl border border-gray-800" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKYhzyCKitqcDZi2kGZue8Wbyv-M8LHPohWk_qsgl-m0Ak5pKr3S2DVHh4&s=10');"></div>
         <div class="bg-[#0f172a] border border-gray-800 rounded-xl p-5">
           <h3 class="text-xs font-black text-cyan-400 uppercase mb-3">⚡ জরুরি তথ্য</h3>
-          <p class="text-xs text-gray-400">● আমরা আপনার আইডিতে লগইন করে Robux যোগ করবো।<br>● অর্ডার সম্পন্ন হওয়ার সাথে সাথে আপনার ডাটা মুছে ফেলা হবে।</p>
+          <p class="text-xs text-gray-400">● আমরা আপনার আইডিতে লগইন করে Robux যোগ করবো।<br>● অর্ডার সম্পন্ন হওয়ার সাথে সাথে আপনার ডাটা মুছে ফেলা হবে।</p>
         </div>
       </div>
 
@@ -71,37 +71,7 @@
     </div>
   </main>
 
-<script>
-    let currentPackTitle = "80 Robux";
-    let currentPackPrice = "70.00";
-
-    function selectPackage(btn, title, price) {
-      currentPackTitle = title;
-      currentPackPrice = price;
-      document.querySelectorAll('.pack-btn').forEach(b => {
-        b.classList.remove('border-cyan-500');
-        b.classList.add('border-gray-800');
-      });
-      btn.classList.add('border-cyan-500');
-      btn.classList.remove('border-gray-800');
-    }
-
-    function handleBuyNow() {
-      localStorage.setItem('checkout_roblox_id', document.getElementById('roblox-id').value);
-      localStorage.setItem('checkout_password', document.getElementById('roblox-pass').value);
-      localStorage.setItem('checkout_backup_codes', document.getElementById('backup-codes').value);
-      localStorage.setItem('checkout_contact_number', document.getElementById('contact-number').value);
-      localStorage.setItem('checkout_pack_title', currentPackTitle);
-      localStorage.setItem('checkout_pack_price', currentPackPrice);
-      
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          window.location.href = "/bill.html";
-        }, 50);
-      });
-    }
-  </script>
-<script>
+  <script>
     let currentPackTitle = "80 Robux";
     let currentPackPrice = "70.00";
 
@@ -125,4 +95,6 @@
         localStorage.setItem('checkout_pack_price', currentPackPrice);
         window.location.href = "bill.html";
     }
-</script>
+  </script>
+</body>
+</html>
