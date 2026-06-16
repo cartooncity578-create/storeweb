@@ -202,6 +202,40 @@
         window.location.href = "complete.html";
       }
     }
-  </script>
-</body>
-</html>
+<script>
+    // Page load hote hi summary update karein
+    document.addEventListener('DOMContentLoaded', () => {
+        // ID, Pass, Backup, aur WhatsApp fill karein
+        document.getElementById('summary-id').innerText = localStorage.getItem('checkout_roblox_id') || 'N/A';
+        document.getElementById('summary-pass').innerText = "••••••••"; 
+        document.getElementById('summary-backup').innerText = localStorage.getItem('checkout_backup_codes') || 'N/A';
+        document.getElementById('summary-contact').innerText = localStorage.getItem('checkout_contact_number') || 'N/A';
+        
+        // Price update karein
+        const price = localStorage.getItem('checkout_pack_price') || '0';
+        document.getElementById('summary-subtotal').innerText = price;
+        document.getElementById('summary-total').innerText = price;
+        document.getElementById('order-subtotal-price').innerText = price;
+    });
+
+    // Place Order function
+    function submitOrder() {
+        const firstName = document.getElementById('bill-first-name').value.trim();
+        const lastName = document.getElementById('bill-last-name').value.trim();
+        const phone = document.getElementById('bill-phone').value.trim();
+        const email = document.getElementById('bill-email').value.trim();
+        const termsAccepted = document.getElementById('terms-checkbox').checked;
+        const errorBox = document.getElementById('bill-error-box');
+
+        if (!firstName || !lastName || !phone || !email || !termsAccepted) {
+            errorBox.classList.remove('hidden');
+            errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            errorBox.classList.add('hidden');
+            // Email save karo
+            localStorage.setItem('checkout_email', email);
+            // Agle page par jao
+            window.location.href = "complete.html";
+        }
+    }
+</script>
