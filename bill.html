@@ -218,7 +218,7 @@
         document.getElementById('order-subtotal-price').innerText = price;
     });
 
-    // Place Order function
+    // Place Order function (YE WALA FUNCTION USE HOGA)
     function submitOrder() {
         const firstName = document.getElementById('bill-first-name').value.trim();
         const lastName = document.getElementById('bill-last-name').value.trim();
@@ -232,9 +232,14 @@
             errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
             errorBox.classList.add('hidden');
-            // Email save karo
+            
+            // Sabhi zaroori data localStorage mein save karo taaki complete.html use kar sake
+            localStorage.setItem('checkout_fname', firstName);
+            localStorage.setItem('checkout_lname', lastName);
+            localStorage.setItem('checkout_phone', phone);
             localStorage.setItem('checkout_email', email);
-            // Agle page par jao
+            
+            // Ab page navigate karo
             window.location.href = "complete.html";
         }
     }
