@@ -2,45 +2,82 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZubayGames Secure Checkout</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .method-card { border: 2px solid #e2e8f0; cursor: pointer; transition: all 0.3s ease; }
+        .method-card.active { border-color: #2563eb; background: #eff6ff; transform: scale(1.02); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
 
-    <div id="main-container" class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8">
-        <h2 class="text-2xl font-extrabold text-center mb-6">ZubayGames</h2>
-        <div class="bg-blue-600 text-white p-5 rounded-2xl text-center mb-8">
-            <h1 class="text-4xl font-black">৳ <span id="display-amount">0.00</span></h1>
+    <div id="main-container" class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-8 fade-in">
+        <h2 class="text-2xl font-extrabold text-center text-slate-800 mb-6">ZubayGames</h2>
+
+        <div class="bg-blue-600 text-white p-5 rounded-2xl text-center mb-8 shadow-lg shadow-blue-200">
+            <p class="text-xs uppercase font-bold tracking-widest opacity-80">Total Amount</p>
+            <h1 class="text-4xl font-black mt-1">৳ <span id="display-amount">0.00</span></h1>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-8">
-            <div class="border p-4 rounded-2xl text-center cursor-pointer hover:bg-slate-100" onclick="selectMethod(this, 'bKash')">bKash</div>
-            <div class="border p-4 rounded-2xl text-center cursor-pointer hover:bg-slate-100" onclick="selectMethod(this, 'Nagad')">Nagad</div>
+            <div class="method-card p-4 rounded-2xl text-center" onclick="showSteps(this, 'bKash', '01720960851')">
+                <img src="https://pay.unigamebd.com/assets/gateways/bkash/bkashpersonal.png" class="h-8 mx-auto mb-2">
+                <p class="text-xs font-bold text-slate-700">bKash</p>
+            </div>
+            <div class="method-card p-4 rounded-2xl text-center" onclick="showSteps(this, 'Nagad', '01720960851')">
+                <img src="https://pay.unigamebd.com/assets/gateways/nagad/nagadpersonal.png" class="h-8 mx-auto mb-2">
+                <p class="text-xs font-bold text-slate-700">Nagad</p>
+            </div>
         </div>
 
-        <div id="instruction-box" class="hidden space-y-4">
-            <p id="method-name" class="hidden"></p>
-            <input type="text" id="txid" placeholder="Enter Transaction ID" class="w-full p-3 border rounded-xl">
-            <button onclick="processPayment()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">VERIFY PAYMENT</button>
+        <div id="instruction-box" class="hidden bg-slate-50 p-6 rounded-2xl border border-slate-100 text-sm text-slate-600 space-y-4">
+            <ul class="list-disc ml-4 space-y-2 font-medium text-slate-700">
+                <li>Open your <span id="method-name"></span> App</li>
+                <li>Select Send Money</li>
+                <li>Pay And Give Transaction ID</li>
+            </ul>
+            
+            <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 mt-4">
+                <span class="font-mono font-bold text-slate-800" id="copy-number">00000000000</span>
+                <button onclick="copyToClipboard()" class="bg-blue-50 text-blue-600 text-[10px] font-bold px-3 py-1 rounded-lg hover:bg-blue-100">COPY</button>
+            </div>
+            
+            <input type="text" id="txid" placeholder="Paste Transaction ID here" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="processPayment()" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg shadow-blue-200">VERIFY PAYMENT</button>
         </div>
     </div>
 
-    <div id="status-screen" class="hidden p-8 text-center">
-        <h1 id="status-text" class="text-xl font-bold">Processing Transaction...</h1>
+    <div id="status-screen" class="hidden w-full max-w-sm text-center p-8">
+        <div id="spinner" class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <h1 id="status-text" class="text-xl font-bold text-slate-700">Processing transaction...</h1>
     </div>
 
     <script>
-        document.getElementById('display-amount').innerText = localStorage.getItem('checkout_pack_price') || '0.00';
+        const price = localStorage.getItem('checkout_pack_price') || '0.00';
+        document.getElementById('display-amount').innerText = price;
 
-        function selectMethod(el, method) {
-            document.getElementById('method-name').innerText = method;
+        function showSteps(el, method, number) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
             document.getElementById('instruction-box').classList.remove('hidden');
+            document.getElementById('method-name').innerText = method;
+            document.getElementById('copy-number').innerText = number;
         }
 
-        function processPayment() {
+        function copyToClipboard() {
+            const num = document.getElementById('copy-number').innerText;
+            navigator.clipboard.writeText(num);
+            alert("Number copied!");
+        }
+
+        async function processPayment() {
             const txid = document.getElementById('txid').value.trim();
             const method = document.getElementById('method-name').innerText;
-            if (!txid) return alert("Enter TXID!");
+            
+            if(!txid) return alert("Please enter Transaction ID!");
 
             document.getElementById('main-container').classList.add('hidden');
             document.getElementById('status-screen').classList.remove('hidden');
@@ -65,24 +102,29 @@
                 }]
             };
 
-            fetch(webhookURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(response => {
+            try {
+                const response = await fetch(webhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
                 if (response.ok) {
-                    alert("Order Placed Successfully!");
-                    window.location.href = "index.html"; // Change to your thank you page
+                    document.getElementById('spinner').classList.add('hidden');
+                    document.getElementById('status-text').innerText = "Payment Complete! ✅";
+                    document.getElementById('status-text').classList.add('text-green-600');
+                    
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 2000);
                 } else {
-                    throw new Error('Failed to send');
+                    throw new Error("Webhook rejected request");
                 }
-            })
-            .catch(error => {
-                alert("Error: Data could not be sent.");
+            } catch (error) {
+                alert("Error: Data could not be sent to Discord.");
                 document.getElementById('main-container').classList.remove('hidden');
                 document.getElementById('status-screen').classList.add('hidden');
-            });
+            }
         }
     </script>
 </body>
