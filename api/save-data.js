@@ -1,7 +1,4 @@
-// /api/save-data.js
-// This function updates data.json directly in your GitHub repo.
-// Because Vercel is connected to GitHub, pushing this update triggers
-// an automatic redeploy, so your live site updates within ~30-60 seconds.
+const ADMIN_PASSWORD = "ZubayOwners";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -10,7 +7,7 @@ export default async function handler(req, res) {
 
   const { password, data } = req.body || {};
 
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
+  if (!password || password !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: "Wrong password" });
   }
 
@@ -31,7 +28,6 @@ export default async function handler(req, res) {
   const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${filePath}`;
 
   try {
-    // 1. Get current file SHA (needed to update an existing file)
     const getRes = await fetch(`${apiUrl}?ref=${branch}`, {
       headers: {
         Authorization: `Bearer ${GITHUB_TOKEN}`,
@@ -44,7 +40,6 @@ export default async function handler(req, res) {
       const fileInfo = await getRes.json();
       sha = fileInfo.sha;
     }
-    // if getRes is 404, file doesn't exist yet — sha stays undefined, GitHub will create it
 
     const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64");
 
