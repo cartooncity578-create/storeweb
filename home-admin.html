@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZubayGames - Home Control Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    #home-secure-content { display: none; }
+  </style>
+</head>
+<body class="bg-[#0b111e] text-white font-sans overflow-x-hidden">
+
+  <!-- PASSWORD WALL OVERLAY -->
+  <div id="password-gate" class="fixed inset-0 bg-[#0b111e] z-[100] flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-gray-800 p-6 rounded-2xl max-w-sm w-full space-y-4 text-center shadow-2xl">
+      <h2 class="text-xl font-black text-purple-400 uppercase tracking-wider">🔒 Secure Home Access</h2>
+      <p class="text-xs text-gray-400">Enter master password to access Core Home Engine Node.</p>
+      <input type="password" id="gate-pass" placeholder="Enter Password..." class="w-full bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-center text-sm font-bold focus:outline-none focus:border-purple-500 text-white">
+      <button onclick="verifyHomeGate()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black text-xs py-2.5 rounded-xl uppercase tracking-wider transition">Unlock Engine</button>
+    </div>
+  </div>
+
+  <!-- MAIN AUTHENTICATED CONTENT WRAPPER -->
+  <div id="home-secure-content">
+    <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <span class="text-2xl font-black tracking-wider text-purple-400 uppercase">Zubay<span class="text-white">Home Engine</span></span>
+          <a href="admin.html" class="text-xs font-bold text-cyan-400 hover:text-white transition uppercase border border-cyan-900 bg-cyan-950/30 px-3 py-1.5 rounded-xl">💎 Robux Admin</a>
+        </div>
+        <a href="index.html" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase border border-gray-800 bg-[#131b2e] px-4 py-2 rounded-xl">View Live Home Page →</a>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-8">
+      <!-- BANNER & ANNOUNCEMENT SETTINGS MODULE -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-base font-black tracking-wide text-purple-400 uppercase">📢 Main Alerts & Announcements</h3>
+        <div class="space-y-3">
+          <div class="space-y-1">
+            <label class="text-[10px] text-gray-400 font-bold block uppercase">Homepage Marquee Ticker / Notice Text</label>
+            <input type="text" id="home-notice-text" placeholder="e.g. Welcome to ZubayGames! Big discount active today!" class="w-full bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          </div>
+          <button onclick="saveAnnouncement()" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-2.5 rounded-xl uppercase tracking-wider transition">Update Live Announcement</button>
+        </div>
+      </section>
+      
+      <!-- ITEM CATALOG MODULES -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-black tracking-wide text-purple-400 uppercase">🎮 Dynamic Home Items Grid</h3>
+        <div id="home-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- LIVE HOME PAGE ORDER LOG -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-black tracking-wide text-gray-200">📦 General Orders Ledger (Home Inflow)</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-gray-800 text-gray-400 uppercase tracking-wider font-bold">
+                <th class="py-3 px-2">Order ID</th>
+                <th class="py-3 px-2">Customer Info</th>
+                <th class="py-3 px-2">Item Group</th>
+                <th class="py-3 px-2">Amount Paid</th>
+                <th class="py-3 px-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="home-orders-table" class="divide-y divide-gray-800/40 text-gray-300">
+              <tr><td colspan="5" class="py-6 text-center text-gray-500">Connecting node synchronization matrix...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let cachedHomeOrders = [];
+    let isHomeEditing = false;
+
+    // SECURITY PASSPORT SYSTEM
+    function verifyHomeGate() {
+      const inputPass = document.getElementById('gate-pass').value;
+      if (inputPass === "ZubayOwner1234") {
+        sessionStorage.setItem('zubay_auth', 'granted');
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('home-secure-content').style.display = 'block';
+        loadHomeDashboard();
+        setInterval(loadHomeDashboard, 4000);
+      } else {
+        alert("Incorrect Security Payload Key! System locked.");
+        window.location.href = "index.html";
+      }
+    }
+
+    async function saveAnnouncement() {
+      const text = document.getElementById('home-notice-text').value.trim();
+      await fetch('/api/home-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'update_notice', notice: text })
+      });
+      alert("Announcement system push successful!");
+      loadHomeDashboard();
+    }
+
+    async function saveHomeItem(key) {
+      const updatedName = document.getElementById(`home-name-${key}`).value.trim();
+      const updatedPrice = document.getElementById(`home-price-${key}`).value.trim();
+      if(!updatedName || !updatedPrice) return alert("Values are mandatory.");
+      isHomeEditing = false;
+      await fetch('/api/home-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'update_item', itemId: key, name: updatedName, price: updatedPrice })
+      });
+      loadHomeDashboard();
+    }
+
+    async function toggleHomeItemStock(itemId, status) {
+      await fetch('/api/home-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'update_stock', itemId, status })
+      });
+      loadHomeDashboard();
+    }
+
+    async function loadHomeDashboard() {
+      if (isHomeEditing || sessionStorage.getItem('zubay_auth') !== 'granted') return;
+      try {
+        const response = await fetch('/api/home-submit');
+        const data = await response.json();
+        if (data.success) {
+          cachedHomeOrders = data.orders || [];
+          if(data.notice && document.activeElement !== document.getElementById('home-notice-text')) {
+            document.getElementById('home-notice-text').value = data.notice;
+          }
+          const container = document.getElementById('home-items-container');
+          container.innerHTML = '';
+          Object.keys(data.catalog).forEach(key => {
+            const item = data.catalog[key];
+            const stockColor = item.status === "In Stock" ? "text-green-400" : "text-red-400";
+            container.innerHTML += `
+              <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl flex flex-col justify-between space-y-3">
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Configure Layout</span>
+                    <span class="text-xs font-black text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">৳${item.price}</span>
+                  </div>
+                  <div class="space-y-1 mb-2">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Product Display Name</label>
+                    <input type="text" id="home-name-${key}" value="${item.name}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
+                  </div>
+                  <div class="space-y-1 mb-3">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Base Rate Pricing (BDT)</label>
+                    <input type="number" id="home-price-${key}" value="${item.price}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
+                  </div>
+                  <p class="text-xs text-gray-500">Current Vector: <span class="font-bold ${stockColor}">${item.status}</span></p>
+                </div>
+                <button onclick="saveHomeItem('${key}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black text-[11px] py-2 rounded-lg uppercase tracking-wider transition shadow-lg">Save Configuration</button>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <button onclick="toggleHomeItemStock('${key}', 'In Stock')" class="bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-green-600/40 transition">Active</button>
+                  <button onclick="toggleHomeItemStock('${key}', 'Stock Out')" class="bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-red-600/40 transition">Disable</button>
+                </div>
+              </div>`;
+          });
+          const tableBody = document.getElementById('home-orders-table');
+          if (cachedHomeOrders.length > 0) {
+            tableBody.innerHTML = '';
+            cachedHomeOrders.forEach((order) => {
+              tableBody.innerHTML += `
+                <tr class="hover:bg-gray-800/20 transition">
+                  <td class="py-3 px-2 text-gray-500 font-mono">${order.id}</td>
+                  <td class="py-3 px-2 font-bold text-white">${order.user}</td>
+                  <td class="py-3 px-2 text-gray-300 font-medium">${order.product}</td>
+                  <td class="py-3 px-2 font-black text-purple-400">৳${order.price}</td>
+                  <td class="py-3 px-2 text-center"><span class="text-gray-500 italic text-[10px]">Processed</span></td>
+                </tr>`;
+            });
+          } else {
+            tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500 italic">No ecosystem home transactions available yet.</td></tr>`;
+          }
+        }
+      } catch (err) { console.error("Synchronization delay."); }
+    }
+
+    window.onload = function() {
+      if (sessionStorage.getItem('zubay_auth') === 'granted') {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('home-secure-content').style.display = 'block';
+        loadHomeDashboard();
+        setInterval(loadHomeDashboard, 4000);
+      }
+    };
+  </script>
+</body>
+</html>
