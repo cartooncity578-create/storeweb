@@ -2,27 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Zubay Admin Control</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>Zubay Engine - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0b111e] text-white p-6">
-
-  <!-- ADD SECTION -->
-  <div class="bg-[#0f172a] p-6 rounded-2xl mb-8 border border-gray-800">
-    <h2 class="text-xl font-black text-green-400 mb-4">➕ Add New Product</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <input type="text" id="add-name" placeholder="Name" class="bg-[#131b2e] p-2 rounded border border-gray-800">
-      <input type="text" id="add-img" placeholder="Image URL" class="bg-[#131b2e] p-2 rounded border border-gray-800">
-      <input type="text" id="add-link" placeholder="Redirect (e.g. robux.html)" class="bg-[#131b2e] p-2 rounded border border-gray-800">
-      <button onclick="saveProduct('add')" class="bg-green-600 font-bold py-2 rounded">Add Product</button>
-    </div>
-  </div>
-
-  <!-- PRODUCTS GRID -->
+  <h1 class="text-2xl font-black mb-6">DYNAMIC HOME ITEMS GRID</h1>
   <div id="grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
 
   <script>
     async function loadData() {
+      // Yahan hum /api/home ko fetch kar rahe hain
       const res = await fetch('/api/home');
       const data = await res.json();
       const grid = document.getElementById('grid');
@@ -31,41 +20,14 @@
       Object.keys(data.catalog).forEach(key => {
         const item = data.catalog[key];
         grid.innerHTML += `
-          <div class="bg-[#0f172a] p-4 rounded-xl border border-gray-800">
-            <input type="text" id="name-${key}" value="${item.name}" class="w-full bg-transparent font-bold text-lg mb-2">
-            <img src="${item.image}" class="w-full h-32 object-cover rounded mb-2">
-            <input type="text" id="img-${key}" value="${item.image}" class="w-full bg-[#131b2e] p-1 text-[10px] mb-1">
-            <input type="text" id="link-${key}" value="${item.redirect}" class="w-full bg-[#131b2e] p-1 text-[10px] text-cyan-400 mb-4">
-            <div class="flex gap-2">
-              <button onclick="saveProduct('update', '${key}')" class="flex-1 bg-purple-600 py-1 rounded text-xs font-bold">SAVE</button>
-              <button onclick="saveProduct('delete', '${key}')" class="bg-red-900 text-red-400 px-3 rounded text-xs font-bold">DEL</button>
-            </div>
+          <div class="bg-[#0f172a] p-4 border border-gray-800 rounded-xl">
+            <p class="font-bold">${item.name}</p>
+            <img src="${item.image}" class="w-full h-24 object-cover my-2">
+            <p class="text-cyan-400 text-xs">${item.redirect}</p>
           </div>
         `;
       });
     }
-
-    async function saveProduct(type, key = '') {
-      const payload = {
-        type: type,
-        key: key,
-        name: document.getElementById('add-name')?.value || '',
-        image: document.getElementById('add-img')?.value || '',
-        redirect: document.getElementById('add-link')?.value || '',
-        // Update case ke liye
-        newName: document.getElementById(`name-${key}`)?.value,
-        newImg: document.getElementById(`img-${key}`)?.value,
-        newLink: document.getElementById(`link-${key}`)?.value
-      };
-
-      await fetch('/api/home', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      loadData();
-    }
-
     loadData();
   </script>
 </body>
