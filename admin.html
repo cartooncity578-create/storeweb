@@ -5,58 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZubayGames - Live Admin Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    /* Pehle se sab chhupa do jab tak password verify na ho */
+    #admin-secure-content { display: none; }
+  </style>
 </head>
 <body class="bg-[#0b111e] text-white font-sans overflow-x-hidden">
 
-  <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <span class="text-2xl font-black tracking-wider text-cyan-400 uppercase">Zubay<span class="text-white">Admin Hub</span></span>
-      <a href="robux.html" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase border border-gray-800 bg-[#131b2e] px-4 py-2 rounded-xl">View Robux Page →</a>
+  <!-- PASSWORD WALL OVERLAY -->
+  <div id="password-gate" class="fixed inset-0 bg-[#0b111e] z-[100] flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-gray-800 p-6 rounded-2xl max-w-sm w-full space-y-4 text-center shadow-2xl">
+      <h2 class="text-xl font-black text-cyan-400 uppercase tracking-wider">🔒 Secure Admin Access</h2>
+      <p class="text-xs text-gray-400">Enter master password to access Robux Management Ecosystem.</p>
+      <input type="password" id="gate-pass" placeholder="Enter Password..." class="w-full bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-center text-sm font-bold focus:outline-none focus:border-cyan-500 text-white">
+      <button onclick="verifyAdminGate()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-black text-xs py-2.5 rounded-xl uppercase tracking-wider transition">Unlock Dashboard</button>
     </div>
-  </header>
+  </div>
 
-  <main class="max-w-7xl mx-auto px-4 py-10 space-y-8">
-    
-    <!-- ADD NEW CUSTOM PRODUCT PACK FORM MODULE -->
-    <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
-      <h3 class="text-base font-black tracking-wide text-purple-400 uppercase">➕ Create Custom Robux Pack</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <input type="text" id="new-pack-name" placeholder="e.g. 2000 Robux" class="bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500 font-bold">
-        <input type="number" id="new-pack-price" placeholder="Price in BDT (৳)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500 font-bold">
-        <button onclick="createNewPackage()" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs py-2.5 rounded-xl uppercase tracking-wider transition">Add New Product</button>
+  <!-- MAIN AUTHENTICATED CONTENT WRAPPER -->
+  <div id="admin-secure-content">
+    <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <span class="text-2xl font-black tracking-wider text-cyan-400 uppercase">Zubay<span class="text-white">Admin Hub</span></span>
+          <a href="home-admin.html" class="text-xs font-bold text-purple-400 hover:text-white transition uppercase border border-purple-900 bg-purple-950/30 px-3 py-1.5 rounded-xl">🏠 Home Page Admin</a>
+        </div>
+        <a href="robux.html" class="text-xs font-bold text-gray-400 hover:text-white transition uppercase border border-gray-800 bg-[#131b2e] px-4 py-2 rounded-xl">View Robux Page →</a>
       </div>
-    </section>
-    
-    <!-- PRODUCT MANAGEMENT MODULES -->
-    <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
-      <h3 class="text-lg font-black tracking-wide text-cyan-400 uppercase">📦 Live Product Catalog Grid</h3>
-      <div id="stock-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Inside layout nodes render automatically -->
-      </div>
-    </section>
+    </header>
 
-    <!-- LIVE ORDERS REAL-TIME LEDGER -->
-    <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
-      <h3 class="text-lg font-black tracking-wide text-gray-200">📊 Intercepted Orders Log Ledger</h3>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead>
-            <tr class="border-b border-gray-800 text-gray-400 uppercase tracking-wider font-bold">
-              <th class="py-3 px-2">Order ID</th>
-              <th class="py-3 px-2">Customer Info</th>
-              <th class="py-3 px-2">Product Profile</th>
-              <th class="py-3 px-2">Settlement</th>
-              <th class="py-3 px-2 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="admin-orders-table" class="divide-y divide-gray-800/40 text-gray-300">
-            <tr><td colspan="5" class="py-6 text-center text-gray-500">Syncing database feeds...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <main class="max-w-7xl mx-auto px-4 py-10 space-y-8">
+      <!-- ADD NEW CUSTOM PRODUCT PACK FORM MODULE -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-base font-black tracking-wide text-purple-400 uppercase">➕ Create Custom Robux Pack</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <input type="text" id="new-pack-name" placeholder="e.g. 2000 Robux" class="bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <input type="number" id="new-pack-price" placeholder="Price in BDT (৳)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <button onclick="createNewPackage()" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs py-2.5 rounded-xl uppercase tracking-wider transition">Add New Product</button>
+        </div>
+      </section>
+      
+      <!-- PRODUCT MANAGEMENT MODULES -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-black tracking-wide text-cyan-400 uppercase">📦 Live Product Catalog Grid</h3>
+        <div id="stock-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
 
-  </main>
+      <!-- LIVE ORDERS REAL-TIME LEDGER -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-lg font-black tracking-wide text-gray-200">📊 Intercepted Orders Log Ledger</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-gray-800 text-gray-400 uppercase tracking-wider font-bold">
+                <th class="py-3 px-2">Order ID</th>
+                <th class="py-3 px-2">Customer Info</th>
+                <th class="py-3 px-2">Product Profile</th>
+                <th class="py-3 px-2">Settlement</th>
+                <th class="py-3 px-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="admin-orders-table" class="divide-y divide-gray-800/40 text-gray-300">
+              <tr><td colspan="5" class="py-6 text-center text-gray-500">Syncing database feeds...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <!-- DYNAMIC VIEW DETAILS POPUP MODAL -->
   <div id="details-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -65,7 +81,6 @@
         <h3 class="text-base font-black text-cyan-400 uppercase tracking-wider">🛒 Full Order Credentials</h3>
         <button onclick="closeModal()" class="text-gray-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
       </div>
-      
       <div class="space-y-3 text-sm">
         <div>
           <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Order ID</span>
@@ -108,13 +123,27 @@
 
   <script>
     let cachedOrders = [];
-    let isEditing = false; // 🚀 New flag: Typing track karne ke liye
+    let isEditing = false; 
+
+    // SECURITY PASSPORT SYSTEM
+    function verifyAdminGate() {
+      const inputPass = document.getElementById('gate-pass').value;
+      if (inputPass === "ZubayOwner1234") {
+        sessionStorage.setItem('zubay_auth', 'granted');
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('admin-secure-content').style.display = 'block';
+        loadDashboardData();
+        setInterval(loadDashboardData, 4000);
+      } else {
+        alert("Incorrect Security Payload Key! System locked.");
+        window.location.href = "index.html";
+      }
+    }
 
     async function createNewPackage() {
       const name = document.getElementById('new-pack-name').value.trim();
       const price = document.getElementById('new-pack-price').value.trim();
       if(!name || !price) return alert("Fill in pack name and pricing targets.");
-
       try {
         await fetch('/api/submit-order', {
           method: 'POST',
@@ -130,20 +159,12 @@
     async function savePackageDetails(key) {
       const updatedName = document.getElementById(`input-name-${key}`).value.trim();
       const updatedPrice = document.getElementById(`input-price-${key}`).value.trim();
-      
       if(!updatedName || !updatedPrice) return alert("Name or Price cannot be empty!");
-      
-      isEditing = false; // 🚀 Reset lock so automatic reload can resume
-      
+      isEditing = false; 
       await fetch('/api/submit-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          type: 'update_package', 
-          prodId: key, 
-          updatedName: updatedName, 
-          updatedPrice: updatedPrice 
-        })
+        body: JSON.stringify({ type: 'update_package', prodId: key, updatedName, updatedPrice })
       });
       loadDashboardData();
     }
@@ -158,23 +179,17 @@
     }
 
     async function loadDashboardData() {
-      // 🚀 Agar user type kar raha hai, toh HTML structure overwrite mat karo!
-      if (isEditing) return; 
-
+      if (isEditing || sessionStorage.getItem('zubay_auth') !== 'granted') return; 
       try {
         const response = await fetch('/api/submit-order');
         const data = await response.json();
-
         if (data.success) {
           cachedOrders = data.orders || [];
-          
           const container = document.getElementById('stock-cards-container');
           container.innerHTML = '';
-          
           Object.keys(data.catalog).forEach(key => {
             const item = data.catalog[key];
             const activeStatusColor = item.status === "In Stock" ? "text-green-400" : "text-red-400";
-            
             container.innerHTML += `
               <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl flex flex-col justify-between space-y-3">
                 <div>
@@ -182,39 +197,23 @@
                     <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Modify Package Info</span>
                     <span class="text-xs font-black text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">Live Price: ৳${item.price}</span>
                   </div>
-                  
-                  <!-- Robux Package Title Input Box -->
                   <div class="space-y-1 mb-2">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Robux Amount Name</label>
-                    <input type="text" id="input-name-${key}" value="${item.name}" 
-                      onfocus="isEditing = true" 
-                      onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)"
-                      class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                    <input type="text" id="input-name-${key}" value="${item.name}" onfocus="isEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
                   </div>
-
-                  <!-- Price Input Box -->
                   <div class="space-y-1 mb-3">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Price Settlement (BDT)</label>
-                    <input type="number" id="input-price-${key}" value="${item.price}" 
-                      onfocus="isEditing = true" 
-                      onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)"
-                      class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                    <input type="number" id="input-price-${key}" value="${item.price}" onfocus="isEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
                   </div>
-                  
                   <p class="text-xs text-gray-500">Status: <span class="font-bold ${activeStatusColor}">${item.status}</span></p>
                 </div>
-
-                <!-- Global Action Triggers -->
                 <button onclick="savePackageDetails('${key}')" class="w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-black text-[11px] py-2 rounded-lg uppercase tracking-wider transition shadow-lg">Save Package Layout</button>
-                
                 <div class="grid grid-cols-2 gap-2 pt-1">
                   <button onclick="toggleStock('${key}', 'In Stock')" class="bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-green-600/40 transition">In Stock</button>
                   <button onclick="toggleStock('${key}', 'Stock Out')" class="bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-red-600/40 transition">Stock Out</button>
                 </div>
-              </div>
-            `;
+              </div>`;
           });
-
           const tableBody = document.getElementById('admin-orders-table');
           if (cachedOrders.length > 0) {
             tableBody.innerHTML = '';
@@ -226,8 +225,7 @@
                   <td class="py-3 px-2 text-gray-300 font-medium">${order.product}</td>
                   <td class="py-3 px-2 font-black text-cyan-400">৳${order.price}</td>
                   <td class="py-3 px-2 text-center"><button onclick="viewDetails(${index})" class="bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-black text-[10px] px-3 py-1 rounded-md uppercase tracking-wider transition">View Details</button></td>
-                </tr>
-              `;
+                </tr>`;
             });
           } else {
             tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500 italic">No incoming orders captured yet.</td></tr>`;
@@ -254,12 +252,16 @@
       document.getElementById('modal-notes').innerText = notesMatch ? notesMatch[1] : 'No notes left';
       document.getElementById('details-modal').classList.remove('hidden');
     }
-
     function closeModal() { document.getElementById('details-modal').classList.add('hidden'); }
 
     window.onload = function() {
-      loadDashboardData();
-      setInterval(loadDashboardData, 4000);
+      // Check session state so user doesn't have to re-type on refresh
+      if (sessionStorage.getItem('zubay_auth') === 'granted') {
+        document.getElementById('password-gate').style.display = 'none';
+        document.getElementById('admin-secure-content').style.display = 'block';
+        loadDashboardData();
+        setInterval(loadDashboardData, 4000);
+      }
     };
   </script>
 </body>
