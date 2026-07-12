@@ -29,31 +29,8 @@
       <div class="lg:col-span-7 space-y-8">
         <div class="space-y-4">
           <h2 class="text-base font-black text-cyan-400 uppercase">১. প্যাকেজ সিলেক্ট করুন</h2>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button id="pack-80_robux" onclick="selectPackage(this, '80 Robux', '80_robux')" class="pack-btn bg-[#0f172a] border border-cyan-500 p-4 rounded-xl transition">
-              <div class="text-xs font-black">80 Robux</div>
-              <div id="price-80_robux" class="text-[11px] font-bold text-gray-400">70.00 ৳</div>
-            </button>
-            <button id="pack-400_robux" onclick="selectPackage(this, '400 Robux', '400_robux')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
-              <div class="text-xs font-black">400 Robux</div>
-              <div id="price-400_robux" class="text-[11px] font-bold text-gray-400">350.00 ৳</div>
-            </button>
-            <button id="pack-800_robux" onclick="selectPackage(this, '800 Robux', '800_robux')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
-              <div class="text-xs font-black">800 Robux</div>
-              <div id="price-800_robux" class="text-[11px] font-bold text-gray-400">680.00 ৳</div>
-            </button>
-            <button id="pack-1700_robux" onclick="selectPackage(this, '1700 Robux', '1700_robux')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
-              <div class="text-xs font-black">1700 Robux</div>
-              <div id="price-1700_robux" class="text-[11px] font-bold text-gray-400">1,400.00 ৳</div>
-            </button>
-            <button id="pack-4500_robux" onclick="selectPackage(this, '4500 Robux', '4500_robux')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
-              <div class="text-xs font-black">4500 Robux</div>
-              <div id="price-4500_robux" class="text-[11px] font-bold text-gray-400">3,600.00 ৳</div>
-            </button>
-            <button id="pack-10000_robux" onclick="selectPackage(this, '10000 Robux', '10000_robux')" class="pack-btn bg-[#0f172a] border border-gray-800 p-4 rounded-xl transition">
-              <div class="text-xs font-black">10000 Robux</div>
-              <div id="price-10000_robux" class="text-[11px] font-bold text-gray-400">7,800.00 ৳</div>
-            </button>
+          <div id="dynamic-package-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Dynamic server button components hook up here inside loader loop execution -->
           </div>
         </div>
 
@@ -72,82 +49,68 @@
   </main>
 
   <script>
-    let currentPackTitle = "80 Robux";
-    let currentPackKey = "80_robux";
-    
-    // Fallback price matrix map
-    let livePriceMap = { "80_robux": "70.00", "400_robux": "350.00", "800_robux": "680.00", "1700_robux": "1400.00", "4500_robux": "3600.00", "10000_robux": "7800.00" };
+    let selectedPackTitle = "";
+    let selectedPackPrice = "";
+    let selectedPackKey = "";
+    let masterCatalog = {};
 
-    function selectPackage(btn, title, key) {
-        if(btn.disabled) return; 
-        currentPackTitle = title;
-        currentPackKey = key;
+    function selectProductCard(element, title, price, key) {
+        selectedPackTitle = title;
+        selectedPackPrice = price;
+        selectedPackKey = key;
         
         document.querySelectorAll('.pack-btn').forEach(b => {
             b.classList.remove('border-cyan-500');
             b.classList.add('border-gray-800');
         });
-        btn.classList.add('border-cyan-500');
-        btn.classList.remove('border-gray-800');
+        element.classList.add('border-cyan-500');
+        element.classList.remove('border-gray-800');
     }
 
     function handleBuyNow() {
-        const accuratePrice = livePriceMap[currentPackKey] || "0";
-        
+        if(!selectedPackKey) return alert("Pehle upar se ek package select karein!");
         localStorage.setItem('checkout_roblox_id', document.getElementById('roblox-id').value);
         localStorage.setItem('checkout_password', document.getElementById('roblox-pass').value);
         localStorage.setItem('checkout_backup_codes', document.getElementById('backup-codes').value);
         localStorage.setItem('checkout_contact_number', document.getElementById('contact-number').value);
-        localStorage.setItem('checkout_pack_title', currentPackTitle);
-        localStorage.setItem('checkout_pack_price', accuratePrice);
+        localStorage.setItem('checkout_pack_title', selectedPackTitle);
+        localStorage.setItem('checkout_pack_price', selectedPackPrice);
         window.location.href = "bill.html";
     }
 
-    // Dynamic Server Price & Stock Sync System Loop
-    async function syncClientStockData() {
+    async function syncMarketCatalog() {
       try {
         const response = await fetch('/api/submit-order');
         const data = await response.json();
 
-        if(data.success) {
-          const productKeys = ["80_robux", "400_robux", "800_robux", "1700_robux", "4500_robux", "10000_robux"];
+        if(data.success && data.catalog) {
+          masterCatalog = data.catalog;
+          const grid = document.getElementById('dynamic-package-grid');
           
-          // Pull and sync real-time database prices from server memory if existing
-          if (data.prices) {
-            livePriceMap = data.prices;
-          }
+          // Re-rendering active cards while locking states seamlessly
+          grid.innerHTML = '';
+          
+          Object.keys(masterCatalog).forEach(key => {
+            const item = masterCatalog[key];
+            const isOutOfStock = item.status === "Out of Stock";
+            const borderStyle = (selectedPackKey === key) ? "border-cyan-500" : "border-gray-800";
+            const opacityMode = isOutOfStock ? "opacity-40 cursor-not-allowed" : "cursor-pointer opacity-100";
+            const outputPriceDisplay = isOutOfStock ? "Stock Out ❌" : `${item.price} ৳`;
+            const disableProp = isOutOfStock ? "disabled" : "";
 
-          productKeys.forEach(key => {
-            const currentStatus = data.stock ? data.stock[key] : "In Stock";
-            const targetBtn = document.getElementById(`pack-${key}`);
-            const priceLabel = document.getElementById(`price-${key}`);
-
-            if(targetBtn && currentStatus === "Out of Stock") {
-              targetBtn.disabled = true;
-              targetBtn.style.opacity = "0.4";
-              targetBtn.style.cursor = "not-allowed";
-              if(priceLabel) priceLabel.innerText = "Stock Out ❌";
-              
-              targetBtn.classList.remove('border-cyan-500');
-              targetBtn.classList.add('border-gray-800');
-            } else if(targetBtn) {
-              targetBtn.disabled = false;
-              targetBtn.style.opacity = "1";
-              targetBtn.style.cursor = "pointer";
-              // Render the live active price saved inside server variable instantly
-              if(priceLabel && livePriceMap[key]) {
-                priceLabel.innerText = `${livePriceMap[key]} ৳`;
-              }
-            }
+            grid.innerHTML += `
+              <button ${disableProp} onclick="selectProductCard(this, '${item.name}', '${item.price}', '${key}')" class="pack-btn bg-[#0f172a] border ${borderStyle} p-4 rounded-xl transition ${opacityMode}">
+                <div class="text-xs font-black">${item.name}</div>
+                <div class="text-[11px] font-bold text-gray-400">${outputPriceDisplay}</div>
+              </button>
+            `;
           });
         }
-      } catch (err) {
-        console.error("Live internal status execution tracking pipeline failed");
-      }
+      } catch (err) { console.error("Catalog stream broken."); }
     }
 
-    window.addEventListener('load', syncClientStockData);
-    setInterval(syncClientStockData, 4000);
+    window.addEventListener('load', syncMarketCatalog);
+    setInterval(syncMarketCatalog, 5000);
   </script>
 </body>
 </html>
