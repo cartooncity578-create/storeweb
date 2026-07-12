@@ -8,6 +8,16 @@ let productStockStatus = {
   "10000_robux": "In Stock"
 };
 
+// Default values set internally on server-side memory
+let productPrices = {
+  "80_robux": "70",
+  "400_robux": "350",
+  "800_robux": "700",
+  "1700_robux": "1450",
+  "4500_robux": "3800",
+  "10000_robux": "8300"
+};
+
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1525815962257981515/dLYVwZR54QKSUhiiLc_HA8ReCEgF5dm9T558MfeArNk-X0f8VYQlOW0lTwTgw-g9QEzR";
 
 export default async function handler(req, res) {
@@ -21,7 +31,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ 
       success: true, 
       orders: liveOrdersCache, 
-      stock: productStockStatus 
+      stock: productStockStatus,
+      prices: productPrices // Automatically broadcasting active server prices
     });
   }
 
@@ -30,6 +41,27 @@ export default async function handler(req, res) {
       const { type, user, email, product, price, prodId, status } = req.body;
 
       if (type === 'update_stock') {
+        // Checking if the incoming call is a sync request for direct price modification
+        if (prodId.endsWith('_price_sync')) {
+          const actualProdKey = prodId.replace('_price_sync', '');
+          productPrices[actualProdKey] = status; // Overwriting the price state on runtime memory
+
+          await fetch(DISCORD_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              embeds: [{
+                title: "💰 PRICE UPDATE NOTICE",
+                description: `Product **${actualProdKey.replace('_', ' ').toUpperCase()}** price was updated to **৳${status}**.`,
+                color: 16761035,
+                timestamp: new Date().toISOString()
+              }]
+            })
+          });
+          return res.status(200).json({ success: true, stock: productStockStatus, prices: productPrices });
+        }
+
+        // Standard operational logic for stock status flow
         productStockStatus[prodId] = status;
 
         await fetch(DISCORD_WEBHOOK_URL, {
@@ -44,7 +76,7 @@ export default async function handler(req, res) {
             }]
           })
         });
-        return res.status(200).json({ success: true, stock: productStockStatus });
+        return res.status(200).json({ success: true, stock: productStockStatus, prices: productPrices });
       }
 
       const newOrder = {
