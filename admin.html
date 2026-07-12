@@ -17,11 +17,11 @@
 
   <main class="max-w-7xl mx-auto px-4 py-10 space-y-8">
     
-    <!-- PRODUCT STOCK MANAGEMENT PANEL -->
+    <!-- PRODUCT STOCK & PRICE MANAGEMENT PANEL -->
     <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
-      <h3 class="text-lg font-black tracking-wide text-cyan-400 uppercase">📦 Live Product Stock Manager</h3>
+      <h3 class="text-lg font-black tracking-wide text-cyan-400 uppercase">📦 Live Product Stock & Price Manager</h3>
       <div id="stock-cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Javascript will inject 6 stock modules automatically -->
+        <!-- Modules inject here -->
       </div>
     </section>
 
@@ -33,13 +33,14 @@
           <thead>
             <tr class="border-b border-gray-800 text-gray-400 uppercase tracking-wider font-bold">
               <th class="py-3 px-2">Order ID</th>
-              <th class="py-3 px-2">Customer</th>
+              <th class="py-3 px-2">Customer Info</th>
               <th class="py-3 px-2">Product Profile</th>
-              <th class="py-3 px-2 text-right">Settlement</th>
+              <th class="py-3 px-2">Settlement</th>
+              <th class="py-3 px-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody id="admin-orders-table" class="divide-y divide-gray-800/40 text-gray-300">
-            <tr><td colspan="4" class="py-6 text-center text-gray-500">Fetching order pipeline matrix...</td></tr>
+            <tr><td colspan="5" class="py-6 text-center text-gray-500">Fetching order pipeline matrix...</td></tr>
           </tbody>
         </table>
       </div>
@@ -47,20 +48,86 @@
 
   </main>
 
+  <!-- DYNAMIC VIEW DETAILS POPUP MODAL -->
+  <div id="details-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+    <div class="bg-[#0f172a] border border-gray-800 rounded-2xl max-w-lg w-full p-6 space-y-4 relative shadow-2xl">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+        <h3 class="text-base font-black text-cyan-400 uppercase tracking-wider">🛒 Full Order Credentials</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
+      </div>
+      
+      <div class="space-y-3 text-sm">
+        <div>
+          <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Order ID</span>
+          <p id="modal-order-id" class="font-mono text-cyan-300 font-bold bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1"></p>
+        </div>
+        <div>
+          <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Customer Details</span>
+          <p id="modal-customer" class="text-gray-200 font-bold bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1"></p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Email / Username</span>
+            <p id="modal-email" class="text-gray-200 bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1 break-all font-medium"></p>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Roblox Password</span>
+            <p id="modal-password" class="text-yellow-400 font-bold bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1 break-all"></p>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">Backup Codes</span>
+            <p id="modal-backup" class="text-orange-400 font-mono bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1"></p>
+          </div>
+          <div>
+            <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">WhatsApp Contact</span>
+            <p id="modal-whatsapp" class="text-emerald-400 font-bold bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1"></p>
+          </div>
+        </div>
+        <div>
+          <span class="text-xs text-gray-500 font-bold uppercase tracking-wide block">User Order Notes</span>
+          <p id="modal-notes" class="text-gray-400 bg-[#131b2e] px-3 py-2 rounded-xl border border-gray-800 mt-1 italic"></p>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeModal()" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider cursor-pointer">
+          Close Window
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const productKeys = ["80_robux", "400_robux", "800_robux", "1700_robux", "4500_robux", "10000_robux"];
+    // Default base fallback values
+    const defaultPrices = { "80_robux": "70", "400_robux": "350", "800_robux": "700", "1700_robux": "1450", "4500_robux": "3800", "10000_robux": "8300" };
+    let cachedOrders = [];
 
     function buildStockCards() {
       const container = document.getElementById('stock-cards-container');
       container.innerHTML = '';
       productKeys.forEach(key => {
         const titleName = key.replace('_', ' ').toUpperCase();
+        const currentSavedPrice = localStorage.getItem(`price_${key}`) || defaultPrices[key];
+
         container.innerHTML += `
           <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl flex flex-col justify-between space-y-3">
             <div>
-              <h4 class="font-bold text-sm text-gray-200">${titleName}</h4>
+              <div class="flex justify-between items-center">
+                <h4 class="font-bold text-sm text-gray-200">${titleName}</h4>
+                <span class="text-xs font-black text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">৳${currentSavedPrice}</span>
+              </div>
               <p class="text-xs text-gray-500 mt-1">Status: <span id="status-${key}" class="font-bold text-yellow-500">Loading...</span></p>
             </div>
+            
+            <!-- Dynamic Price Input Box -->
+            <div class="flex gap-1.5 items-center bg-[#0b111e] border border-gray-800 p-1 rounded-lg">
+              <input type="number" id="input-price-${key}" value="${currentSavedPrice}" class="w-full bg-transparent px-2 py-1 text-xs font-bold text-gray-200 focus:outline-none" placeholder="Set Price">
+              <button onclick="savePrice('${key}')" class="bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-bold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider transition">Save</button>
+            </div>
+
             <div class="flex gap-2">
               <button onclick="toggleStock('${key}', 'In Stock')" class="flex-1 bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase cursor-pointer hover:bg-green-600/40 transition">In Stock</button>
               <button onclick="toggleStock('${key}', 'Out of Stock')" class="flex-1 bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] py-1.5 font-bold rounded uppercase cursor-pointer hover:bg-red-600/40 transition">Stock Out</button>
@@ -70,12 +137,31 @@
       });
     }
 
+    function savePrice(key) {
+      const newPrice = document.getElementById(`input-price-${key}`).value.trim();
+      if(!newPrice || isNaN(newPrice)) return alert("Please enter a valid price amount.");
+      
+      // Update local ledger storage matrix instantly
+      localStorage.setItem(`price_${key}`, newPrice);
+      
+      // Also broadcast via API update to keep server in perfect sync if needed
+      fetch('/api/submit-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'update_stock', prodId: `${key}_price_sync`, status: newPrice })
+      }).then(() => {
+         buildStockCards();
+      });
+    }
+
     async function loadDashboardData() {
       try {
         const response = await fetch('/api/submit-order');
         const data = await response.json();
 
         if (data.success) {
+          cachedOrders = data.orders || [];
+          
           productKeys.forEach(key => {
             const el = document.getElementById(`status-${key}`);
             if (el && data.stock[key]) {
@@ -85,25 +171,57 @@
           });
 
           const tableBody = document.getElementById('admin-orders-table');
-          if (data.orders && data.orders.length > 0) {
+          if (cachedOrders.length > 0) {
             tableBody.innerHTML = '';
-            data.orders.forEach(order => {
+            cachedOrders.forEach((order, index) => {
               tableBody.innerHTML += `
                 <tr class="hover:bg-gray-800/20 transition">
                   <td class="py-3 px-2 text-gray-500 font-mono">${order.id}</td>
-                  <td class="py-3 px-2 font-bold text-white">${order.user} <br><span class="text-[10px] text-gray-500 font-normal font-mono">${order.email}</span></td>
+                  <td class="py-3 px-2 font-bold text-white">${order.user}</td>
                   <td class="py-3 px-2 text-gray-300 font-medium">${order.product}</td>
-                  <td class="py-3 px-2 text-right font-black text-cyan-400">৳${order.price}</td>
+                  <td class="py-3 px-2 font-black text-cyan-400">৳${order.price}</td>
+                  <td class="py-3 px-2 text-center">
+                    <button onclick="viewDetails(${index})" class="bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-black text-[10px] px-3 py-1 rounded-md uppercase tracking-wider transition cursor-pointer">
+                      View Details
+                    </button>
+                  </td>
                 </tr>
               `;
             });
           } else {
-            tableBody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-500 italic">No incoming orders captured yet.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-500 italic">No incoming orders captured yet.</td></tr>`;
           }
         }
       } catch (err) {
         console.error("Dashboard synchronization error");
       }
+    }
+
+    function viewDetails(index) {
+      const order = cachedOrders[index];
+      if (!order) return;
+
+      document.getElementById('modal-order-id').innerText = order.id;
+      document.getElementById('modal-customer').innerText = order.user;
+
+      const rawString = order.email || '';
+      const emailMatch = rawString.match(/Email:\s*(.*?)(?=\s*\||$)/);
+      const passMatch = rawString.match(/Pass:\s*(.*?)(?=\s*\||$)/);
+      const backupMatch = rawString.match(/Backup:\s*(.*?)(?=\s*\||$)/);
+      const waMatch = rawString.match(/WA:\s*(.*?)(?=\s*\||$)/);
+      const notesMatch = rawString.match(/Notes:\s*(.*?)(?=\s*\||$)/);
+
+      document.getElementById('modal-email').innerText = emailMatch ? emailMatch[1] : rawString;
+      document.getElementById('modal-password').innerText = passMatch ? passMatch[1] : 'N/A';
+      document.getElementById('modal-backup').innerText = backupMatch ? backupMatch[1] : 'N/A';
+      document.getElementById('modal-whatsapp').innerText = waMatch ? waMatch[1] : 'N/A';
+      document.getElementById('modal-notes').innerText = notesMatch ? notesMatch[1] : 'No notes left';
+
+      document.getElementById('details-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('details-modal').classList.add('hidden');
     }
 
     async function toggleStock(prodId, status) {
