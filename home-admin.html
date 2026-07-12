@@ -1,34 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Zubay Engine - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0b111e] text-white p-6">
-  <h1 class="text-2xl font-black mb-6">DYNAMIC HOME ITEMS GRID</h1>
-  <div id="grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+<body class="bg-[#0b111e] text-white p-8">
+  <h1 class="text-3xl font-black mb-6">Zubay Engine Admin</h1>
+
+  <!-- Add Product -->
+  <div class="bg-[#0f172a] p-6 rounded-2xl mb-8 border border-gray-800">
+    <h2 class="text-xl font-bold mb-4">Add New Product</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <input id="in-name" placeholder="Name" class="bg-[#131b2e] p-2 rounded">
+      <input id="in-img" placeholder="Image URL" class="bg-[#131b2e] p-2 rounded">
+      <input id="in-url" placeholder="Redirect URL" class="bg-[#131b2e] p-2 rounded">
+      <select id="in-cat" class="bg-[#131b2e] p-2 rounded">
+        <option value="Topup">Topup</option>
+        <option value="Subscription">Subscription</option>
+      </select>
+      <button onclick="action('add')" class="bg-green-600 p-2 rounded font-bold">ADD PRODUCT</button>
+    </div>
+  </div>
+
+  <!-- Product List -->
+  <div id="grid" class="grid grid-cols-3 gap-6"></div>
 
   <script>
-    async function loadData() {
-      // Yahan hum /api/home ko fetch kar rahe hain
+    async function load() {
       const res = await fetch('/api/home');
       const data = await res.json();
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
-
+      
       Object.keys(data.catalog).forEach(key => {
         const item = data.catalog[key];
         grid.innerHTML += `
           <div class="bg-[#0f172a] p-4 border border-gray-800 rounded-xl">
-            <p class="font-bold">${item.name}</p>
-            <img src="${item.image}" class="w-full h-24 object-cover my-2">
-            <p class="text-cyan-400 text-xs">${item.redirect}</p>
+            <input id="n-${key}" value="${item.name}" class="w-full bg-transparent font-bold">
+            <input id="i-${key}" value="${item.image}" class="w-full bg-[#131b2e] text-[10px] my-1">
+            <input id="u-${key}" value="${item.redirect}" class="w-full bg-[#131b2e] text-[10px] my-1 text-cyan-400">
+            <select id="c-${key}" class="w-full bg-[#131b2e] text-xs my-2">
+              <option ${item.cat === 'Topup' ? 'selected' : ''}>Topup</option>
+              <option ${item.cat === 'Subscription' ? 'selected' : ''}>Subscription</option>
+            </select>
+            <div class="flex gap-2">
+              <button onclick="action('edit', '${key}')" class="flex-1 bg-purple-600 py-1 rounded text-xs font-bold">SAVE</button>
+              <button onclick="action('del', '${key}')" class="bg-red-900 px-3 rounded text-xs font-bold">DEL</button>
+            </div>
           </div>
         `;
       });
     }
-    loadData();
+
+    async function action(type, key = '') {
+      const payload = { type, key, name: document.getElementById('in-name')?.value, image: document.getElementById('in-img')?.value, redirect: document.getElementById('in-url')?.value, cat: document.getElementById('in-cat')?.value };
+      if(type === 'edit') {
+        payload.name = document.getElementById(`n-${key}`).value;
+        payload.image = document.getElementById(`i-${key}`).value;
+        payload.redirect = document.getElementById(`u-${key}`).value;
+        payload.cat = document.getElementById(`c-${key}`).value;
+      }
+      await fetch('/api/home', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      load();
+    }
+    load();
   </script>
 </body>
 </html>
