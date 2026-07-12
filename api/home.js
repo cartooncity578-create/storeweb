@@ -1,14 +1,23 @@
-// api/home.js
 export default function handler(req, res) {
-  // Yahan tum data ka logic likhoge
-  if (req.method === 'GET') {
-    res.status(200).json({
-      catalog: {
-        "item1": { name: "Minecraft", image: "https://placehold.co/150", redirect: "minecraft.html" }
-      }
-    });
-  } else if (req.method === 'POST') {
-    // Yahan POST request handle hogi
-    res.status(200).json({ success: true });
+  // Yahan tumhara data structure hoga
+  let data = {
+    catalog: {
+      "item1": { name: "Minecraft", image: "...", redirect: "minecraft.html" }
+    }
+  };
+
+  if (req.method === 'POST') {
+    const { type, key, name, image, redirect, newName, newImg, newLink } = req.body;
+
+    if (type === 'add') {
+      data.catalog['item' + Date.now()] = { name, image, redirect };
+    } else if (type === 'update') {
+      data.catalog[key] = { name: newName, image: newImg, redirect: newLink };
+    } else if (type === 'delete') {
+      delete data.catalog[key];
+    }
+    return res.status(200).json({ success: true });
   }
+
+  res.status(200).json(data);
 }
