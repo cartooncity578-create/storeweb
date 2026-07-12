@@ -34,6 +34,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 py-10 space-y-8">
+      
       <!-- BANNER & ANNOUNCEMENT SETTINGS MODULE -->
       <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
         <h3 class="text-base font-black tracking-wide text-purple-400 uppercase">📢 Main Alerts & Announcements</h3>
@@ -45,11 +46,25 @@
           <button onclick="saveAnnouncement()" class="bg-purple-600 hover:bg-purple-700 text-white font-black text-xs px-6 py-2.5 rounded-xl uppercase tracking-wider transition">Update Live Announcement</button>
         </div>
       </section>
+
+      <!-- NEW MODULE: ADD NEW HOME PRODUCT/GAME CARD -->
+      <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
+        <h3 class="text-base font-black tracking-wide text-green-400 uppercase">➕ Add New Game / Product to Homepage</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <input type="text" id="new-item-name" placeholder="Game Name (e.g. Minecraft)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <input type="number" id="new-item-price" placeholder="Starting Price (৳)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <input type="text" id="new-item-image" placeholder="Image URL (https://...)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <input type="text" id="new-item-redirect" placeholder="Redirect URL (e.g. robux.html)" class="bg-[#131b2e] border border-gray-800 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-purple-500 font-bold">
+          <button onclick="createNewHomeItem()" class="bg-green-600 hover:bg-green-700 text-white font-black text-xs py-2 rounded-xl uppercase tracking-wider transition">Add Product</button>
+        </div>
+      </section>
       
-      <!-- ITEM CATALOG MODULES -->
+      <!-- ITEM CATALOG MODULES (UPDATED WITH IMAGE & REDIRECT) -->
       <section class="bg-[#0f172a] border border-gray-800 rounded-2xl p-6 space-y-4">
         <h3 class="text-lg font-black tracking-wide text-purple-400 uppercase">🎮 Dynamic Home Items Grid</h3>
-        <div id="home-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="home-items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Dynamic cards load here -->
+        </div>
       </section>
 
       <!-- LIVE HOME PAGE ORDER LOG -->
@@ -79,7 +94,6 @@
     let cachedHomeOrders = [];
     let isHomeEditing = false;
 
-    // SECURITY PASSPORT SYSTEM
     function verifyHomeGate() {
       const inputPass = document.getElementById('gate-pass').value;
       if (inputPass === "ZubayOwner1234") {
@@ -94,6 +108,38 @@
       }
     }
 
+    // FUNCTION TO ADD NEW GAME CARD
+    async function createNewHomeItem() {
+      const name = document.getElementById('new-item-name').value.trim();
+      const price = document.getElementById('new-item-price').value.trim();
+      const image = document.getElementById('new-item-image').value.trim();
+      const redirect = document.getElementById('new-item-redirect').value.trim();
+
+      if(!name || !price || !image || !redirect) return alert("Please fill all details (Name, Price, Image URL, Redirect Link).");
+
+      try {
+        await fetch('/api/home-submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            type: 'add_home_product', 
+            name: name, 
+            price: price, 
+            image: image, 
+            redirect: redirect 
+          })
+        });
+        
+        // Reset inputs
+        document.getElementById('new-item-name').value = '';
+        document.getElementById('new-item-price').value = '';
+        document.getElementById('new-item-image').value = '';
+        document.getElementById('new-item-redirect').value = '';
+        
+        loadHomeDashboard();
+      } catch(e) { alert("Error adding product."); }
+    }
+
     async function saveAnnouncement() {
       const text = document.getElementById('home-notice-text').value.trim();
       await fetch('/api/home-submit', {
@@ -105,15 +151,27 @@
       loadHomeDashboard();
     }
 
+    // FUNCTION TO SAVE MODIFIED CARD DETAILS (NAME, PRICE, IMAGE, REDIRECT)
     async function saveHomeItem(key) {
       const updatedName = document.getElementById(`home-name-${key}`).value.trim();
       const updatedPrice = document.getElementById(`home-price-${key}`).value.trim();
-      if(!updatedName || !updatedPrice) return alert("Values are mandatory.");
+      const updatedImage = document.getElementById(`home-image-${key}`).value.trim();
+      const updatedRedirect = document.getElementById(`home-redirect-${key}`).value.trim();
+      
+      if(!updatedName || !updatedPrice || !updatedImage || !updatedRedirect) return alert("Values cannot be empty.");
+      
       isHomeEditing = false;
       await fetch('/api/home-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'update_item', itemId: key, name: updatedName, price: updatedPrice })
+        body: JSON.stringify({ 
+          type: 'update_item', 
+          itemId: key, 
+          name: updatedName, 
+          price: updatedPrice, 
+          image: updatedImage, 
+          redirect: updatedRedirect 
+        })
       });
       loadHomeDashboard();
     }
@@ -139,9 +197,15 @@
           }
           const container = document.getElementById('home-items-container');
           container.innerHTML = '';
+          
           Object.keys(data.catalog).forEach(key => {
             const item = data.catalog[key];
             const stockColor = item.status === "In Stock" ? "text-green-400" : "text-red-400";
+            
+            // Default Fallbacks if backend doesn't have image/redirect keys yet
+            const currentImg = item.image || 'https://placehold.co/150';
+            const currentRedirect = item.redirect || 'robux.html';
+
             container.innerHTML += `
               <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl flex flex-col justify-between space-y-3">
                 <div>
@@ -149,16 +213,34 @@
                     <span class="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Configure Layout</span>
                     <span class="text-xs font-black text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">৳${item.price}</span>
                   </div>
+
+                  <!-- Product Name Input -->
                   <div class="space-y-1 mb-2">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Product Display Name</label>
-                    <input type="text" id="home-name-${key}" value="${item.name}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
+                    <input type="text" id="home-name-${key}" value="${item.name}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
                   </div>
-                  <div class="space-y-1 mb-3">
+
+                  <!-- Price Input -->
+                  <div class="space-y-1 mb-2">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Base Rate Pricing (BDT)</label>
-                    <input type="number" id="home-price-${key}" value="${item.price}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
+                    <input type="number" id="home-price-${key}" value="${item.price}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-purple-500">
                   </div>
+
+                  <!-- Image URL Input -->
+                  <div class="space-y-1 mb-2">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Image URL Link</label>
+                    <input type="text" id="home-image-${key}" value="${currentImg}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1 rounded-lg text-xs text-gray-400 focus:outline-none focus:border-purple-500">
+                  </div>
+
+                  <!-- Redirect File Input -->
+                  <div class="space-y-1 mb-3">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Redirection Target Link</label>
+                    <input type="text" id="home-redirect-${key}" value="${currentRedirect}" onfocus="isHomeEditing = true" onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isHomeEditing = false; }, 200)" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1 rounded-lg text-xs font-mono text-cyan-400 focus:outline-none focus:border-purple-500">
+                  </div>
+                  
                   <p class="text-xs text-gray-500">Current Vector: <span class="font-bold ${stockColor}">${item.status}</span></p>
                 </div>
+                
                 <button onclick="saveHomeItem('${key}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-black text-[11px] py-2 rounded-lg uppercase tracking-wider transition shadow-lg">Save Configuration</button>
                 <div class="grid grid-cols-2 gap-2 pt-1">
                   <button onclick="toggleHomeItemStock('${key}', 'In Stock')" class="bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-green-600/40 transition">Active</button>
@@ -166,6 +248,7 @@
                 </div>
               </div>`;
           });
+
           const tableBody = document.getElementById('home-orders-table');
           if (cachedHomeOrders.length > 0) {
             tableBody.innerHTML = '';
