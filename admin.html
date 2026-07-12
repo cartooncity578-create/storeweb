@@ -126,13 +126,22 @@
       } catch(e) { alert("Execution error processing layout."); }
     }
 
-    async function savePrice(key) {
-      const newPrice = document.getElementById(`input-price-${key}`).value.trim();
-      if(!newPrice) return;
+    // 🚀 NEW SYNC EXECUTION: Isme ab Name aur Price dono ek sath update hote hain!
+    async function savePackageDetails(key) {
+      const updatedName = document.getElementById(`input-name-${key}`).value.trim();
+      const updatedPrice = document.getElementById(`input-price-${key}`).value.trim();
+      
+      if(!updatedName || !updatedPrice) return alert("Name or Price cannot be empty!");
+      
       await fetch('/api/submit-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'update_stock', prodId: `${key}_price_sync`, status: newPrice })
+        body: JSON.stringify({ 
+          type: 'update_package', 
+          prodId: key, 
+          updatedName: updatedName, 
+          updatedPrice: updatedPrice 
+        })
       });
       loadDashboardData();
     }
@@ -154,7 +163,6 @@
         if (data.success) {
           cachedOrders = data.orders || [];
           
-          // Rebuilding interactive lists directly from global database response stream
           const container = document.getElementById('stock-cards-container');
           container.innerHTML = '';
           
@@ -165,19 +173,32 @@
             container.innerHTML += `
               <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl flex flex-col justify-between space-y-3">
                 <div>
-                  <div class="flex justify-between items-center">
-                    <h4 class="font-bold text-sm text-gray-200">${item.name}</h4>
-                    <span class="text-xs font-black text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">৳${item.price}</span>
+                  <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Modify Package Info</span>
+                    <span class="text-xs font-black text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">Live Price: ৳${item.price}</span>
                   </div>
-                  <p class="text-xs text-gray-500 mt-1">Status: <span class="font-bold ${activeStatusColor}">${item.status}</span></p>
+                  
+                  <!-- Robux Package Title Input Box -->
+                  <div class="space-y-1 mb-2">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Robux Amount Name</label>
+                    <input type="text" id="input-name-${key}" value="${item.name}" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                  </div>
+
+                  <!-- Price Input Box -->
+                  <div class="space-y-1 mb-3">
+                    <label class="text-[10px] text-gray-400 font-bold block uppercase">Price Settlement (BDT)</label>
+                    <input type="number" id="input-price-${key}" value="${item.price}" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                  </div>
+                  
+                  <p class="text-xs text-gray-500">Status: <span class="font-bold ${activeStatusColor}">${item.status}</span></p>
                 </div>
-                <div class="flex gap-1.5 items-center bg-[#0b111e] border border-gray-800 p-1 rounded-lg">
-                  <input type="number" id="input-price-${key}" value="${item.price}" class="w-full bg-transparent px-2 py-1 text-xs font-bold text-gray-200 focus:outline-none">
-                  <button onclick="savePrice('${key}')" class="bg-cyan-500 text-gray-900 font-bold text-[10px] px-2.5 py-1 rounded uppercase tracking-wider transition">Save</button>
-                </div>
-                <div class="flex gap-2">
-                  <button onclick="toggleStock('${key}', 'In Stock')" class="flex-1 bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-green-600/40 transition">In Stock</button>
-                  <button onclick="toggleStock('${key}', 'Out of Stock')" class="flex-1 bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-red-600/40 transition">Stock Out</button>
+
+                <!-- Global Action Triggers -->
+                <button onclick="savePackageDetails('${key}')" class="w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-black text-[11px] py-2 rounded-lg uppercase tracking-wider transition shadow-lg">Save Package Layout</button>
+                
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <button onclick="toggleStock('${key}', 'In Stock')" class="bg-green-600/20 text-green-400 border border-green-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-green-600/40 transition">In Stock</button>
+                  <button onclick="toggleStock('${key}', 'Stock Out')" class="bg-red-600/20 text-red-400 border border-red-500/30 text-[10px] py-1.5 font-bold rounded uppercase hover:bg-red-600/40 transition">Stock Out</button>
                 </div>
               </div>
             `;
