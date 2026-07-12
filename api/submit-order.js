@@ -1,9 +1,8 @@
 // Dynamic Cloud Sync Hub via GitHub Storage API Pipeline
 const GITHUB_TOKEN = "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"; 
-const GITHUB_REPO = "cartooncity578-create/storeweb"; // Tumhara repo name 'storeweb' hai tab ke mutabik
+const GITHUB_REPO = "cartooncity578-create/storeweb"; 
 const FILE_PATH = "products.json"; 
 
-// 🎯 BACKUP PRODUCTS: Agar GitHub file na mile, toh yeh hamesha dikhenge
 const DEFAULT_CATALOG = {
   "80_robux": { "name": "80 Robux", "price": "70", "status": "In Stock" },
   "400_robux": { "name": "400 Robux", "price": "350", "status": "In Stock" },
@@ -14,7 +13,6 @@ const DEFAULT_CATALOG = {
 };
 
 let liveOrdersCache = [];
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1525815962257981515/dLYVwZR54QKSUhiiLc_HA8ReCEgF5dm9T558MfeArNk-X0f8VYQlOW0lTwTgw-g9QEzR";
 
 async function getCatalogFromGitHub() {
   try {
@@ -70,15 +68,23 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { type, user, email, product, price, prodId, status, packName, packPrice } = req.body;
+      const { type, prodId, status, packName, packPrice, updatedName, updatedPrice } = req.body;
+
+      // Full package details modification (Name + Price)
+      if (type === 'update_package') {
+        const { catalog, sha } = await getCatalogFromGitHub();
+        if (catalog[prodId]) {
+          catalog[prodId].name = updatedName;
+          catalog[prodId].price = updatedPrice;
+        }
+        await saveCatalogToGitHub(catalog, sha);
+        return res.status(200).json({ success: true, catalog });
+      }
 
       if (type === 'update_stock') {
         const { catalog, sha } = await getCatalogFromGitHub();
-        if (prodId.endsWith('_price_sync')) {
-          const actualKey = prodId.replace('_price_sync', '');
-          if (catalog[actualKey]) catalog[actualKey].price = status;
-        } else {
-          if (catalog[prodId]) catalog[prodId].status = status;
+        if (catalog[prodId]) {
+          catalog[prodId].status = status;
         }
         await saveCatalogToGitHub(catalog, sha);
         return res.status(200).json({ success: true, catalog });
@@ -92,21 +98,9 @@ export default async function handler(req, res) {
         return res.status(201).json({ success: true, catalog });
       }
 
-      const newOrder = {
-        id: 'ZGS-' + Math.floor(Math.random() * 900000 + 100000),
-        user: user || 'Guest Gamer',
-        email: email || 'No Credentials',
-        product: product,
-        price: price,
-        timestamp: new Date().toISOString()
-      };
-
-      liveOrdersCache.unshift(newOrder);
-      if (liveOrdersCache.length > 50) liveOrdersCache.pop();
-
-      return res.status(201).json({ success: true, order: newOrder });
+      return res.status(201).json({ success: true });
     } catch (error) {
-      return res.status(500).json({ success: false, error: 'Pipeline write error' });
+      return res.status(500).json({ success: false, error: 'Pipeline error' });
     }
   }
 }
