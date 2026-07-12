@@ -1,0 +1,8 @@
+{
+  "80_robux": { "name": "80 Robux", "price": "70", "status": "In Stock" },
+  "400_robux": { "name": "400 Robux", "price": "350", "status": "In Stock" },
+  "800_robux": { "name": "800 Robux", "price": "680", "status": "In Stock" },
+  "1700_robux": { "name": "1700 Robux", "price": "1400", "status": "In Stock" },
+  "4500_robux": { "name": "4500 Robux", "price": "3600", "status": "In Stock" },
+  "10000_robux": { "name": "10000 Robux", "price": "7800", "status": "In Stock" }
+}
