@@ -108,6 +108,7 @@
 
   <script>
     let cachedOrders = [];
+    let isEditing = false; // 🚀 New flag: Typing track karne ke liye
 
     async function createNewPackage() {
       const name = document.getElementById('new-pack-name').value.trim();
@@ -126,12 +127,13 @@
       } catch(e) { alert("Execution error processing layout."); }
     }
 
-    // 🚀 NEW SYNC EXECUTION: Isme ab Name aur Price dono ek sath update hote hain!
     async function savePackageDetails(key) {
       const updatedName = document.getElementById(`input-name-${key}`).value.trim();
       const updatedPrice = document.getElementById(`input-price-${key}`).value.trim();
       
       if(!updatedName || !updatedPrice) return alert("Name or Price cannot be empty!");
+      
+      isEditing = false; // 🚀 Reset lock so automatic reload can resume
       
       await fetch('/api/submit-order', {
         method: 'POST',
@@ -156,6 +158,9 @@
     }
 
     async function loadDashboardData() {
+      // 🚀 Agar user type kar raha hai, toh HTML structure overwrite mat karo!
+      if (isEditing) return; 
+
       try {
         const response = await fetch('/api/submit-order');
         const data = await response.json();
@@ -181,13 +186,19 @@
                   <!-- Robux Package Title Input Box -->
                   <div class="space-y-1 mb-2">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Robux Amount Name</label>
-                    <input type="text" id="input-name-${key}" value="${item.name}" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                    <input type="text" id="input-name-${key}" value="${item.name}" 
+                      onfocus="isEditing = true" 
+                      onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)"
+                      class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
                   </div>
 
                   <!-- Price Input Box -->
                   <div class="space-y-1 mb-3">
                     <label class="text-[10px] text-gray-400 font-bold block uppercase">Price Settlement (BDT)</label>
-                    <input type="number" id="input-price-${key}" value="${item.price}" class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
+                    <input type="number" id="input-price-${key}" value="${item.price}" 
+                      onfocus="isEditing = true" 
+                      onblur="setTimeout(() => { if(document.activeElement.tagName !== 'INPUT') isEditing = false; }, 200)"
+                      class="w-full bg-[#0b111e] border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-200 focus:outline-none focus:border-cyan-500">
                   </div>
                   
                   <p class="text-xs text-gray-500">Status: <span class="font-bold ${activeStatusColor}">${item.status}</span></p>
