@@ -91,6 +91,24 @@
       } catch (e) { console.error("Error fetching data:", e); }
     }
 
+    // Naya Updated handleGameClick
+    async function handleGameClick(link) {
+      if (!isLoggedIn) {
+        openModal();
+        return;
+      }
+      try {
+        const response = await fetch(link, { method: 'HEAD' });
+        if (response.status === 404) {
+          alert("This Page Is Under Maintenance");
+        } else {
+          window.location.href = link;
+        }
+      } catch (error) {
+        alert("This Page Is Under Maintenance");
+      }
+    }
+
     function handleCredentialResponse(response) {
       const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
       document.getElementById('user-name').innerText = payload.name;
@@ -104,10 +122,9 @@
     function openModal() { document.getElementById('login-modal').classList.remove('hidden'); }
     function closeModalAndAllowGuest() { document.getElementById('login-modal').classList.add('hidden'); }
     function logout() { location.reload(); }
-    function handleGameClick(link) { !isLoggedIn ? openModal() : window.location.href = link; }
     function toggleDropdown() { document.getElementById('profile-dropdown').classList.toggle('hidden'); }
     function smoothScrollTo(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
-    function showStorefrontView() { document.getElementById('standalone-page').classList.add('hidden'); document.getElementById('main-site').classList.remove('hidden'); }
+    function showStorefrontView() { document.getElementById('standalone-page').classList.add('hidden'); document.getElementById('main-site').classList.remove('h-screen').classList.remove('hidden'); }
     function showStandalonePage() { document.getElementById('main-site').classList.add('hidden'); document.getElementById('standalone-page').classList.remove('hidden'); }
 
     document.addEventListener('DOMContentLoaded', () => {
