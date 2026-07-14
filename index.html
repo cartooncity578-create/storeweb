@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZubayGames - Premium Game Store</title>
-  <link class="rounded-full" rel="icon" type="image/png" href="zgs-logo.png">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -68,11 +67,14 @@
 
   <script>
     const BIN_ID = "6a5511e3f5f4af5e29895352";
+    const API_KEY = "$2a$10$egKxhR.4VvU.SAwShVHqJOYSzrT8NzDO2Kb5PaKiME8Q371dK3OPC";
     let isLoggedIn = false;
 
     async function fetchStoreData() {
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Access-Key": API_KEY }
+        });
         const data = await res.json();
         const gGrid = document.querySelector('#game-topup-section .grid');
         const sGrid = document.querySelector('#subscription-section .grid');
@@ -86,7 +88,7 @@
             <div class="h-44 bg-cover bg-center rounded-t-xl" style="background-image: url('${s.image}')"></div>
             <div class="p-3 text-center text-xs font-bold">${s.name}</div>
           </div>`).join('');
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error("Error fetching data:", e); }
     }
 
     function handleCredentialResponse(response) {
