@@ -1,68 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zubay Engine Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0b111e] text-white p-8">
-  <h1 class="text-3xl font-black mb-6">Zubay Engine Admin</h1>
+<body class="bg-[#0b111e] text-white p-10">
 
-  <!-- Add Product -->
-  <div class="bg-[#0f172a] p-6 rounded-2xl mb-8 border border-gray-800">
-    <h2 class="text-xl font-bold mb-4">Add New Product</h2>
-    <div class="grid grid-cols-2 gap-4">
-      <input id="in-name" placeholder="Name" class="bg-[#131b2e] p-2 rounded">
-      <input id="in-img" placeholder="Image URL" class="bg-[#131b2e] p-2 rounded">
-      <input id="in-url" placeholder="Redirect URL" class="bg-[#131b2e] p-2 rounded">
-      <select id="in-cat" class="bg-[#131b2e] p-2 rounded">
-        <option value="Topup">Topup</option>
-        <option value="Subscription">Subscription</option>
-      </select>
-      <button onclick="action('add')" class="bg-green-600 p-2 rounded font-bold">ADD PRODUCT</button>
-    </div>
-  </div>
-
-  <!-- Product List -->
-  <div id="grid" class="grid grid-cols-3 gap-6"></div>
-
-  <script>
-    async function load() {
-      const res = await fetch('/api/home');
-      const data = await res.json();
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      
-      Object.keys(data.catalog).forEach(key => {
-        const item = data.catalog[key];
-        grid.innerHTML += `
-          <div class="bg-[#0f172a] p-4 border border-gray-800 rounded-xl">
-            <input id="n-${key}" value="${item.name}" class="w-full bg-transparent font-bold">
-            <input id="i-${key}" value="${item.image}" class="w-full bg-[#131b2e] text-[10px] my-1">
-            <input id="u-${key}" value="${item.redirect}" class="w-full bg-[#131b2e] text-[10px] my-1 text-cyan-400">
-            <select id="c-${key}" class="w-full bg-[#131b2e] text-xs my-2">
-              <option ${item.cat === 'Topup' ? 'selected' : ''}>Topup</option>
-              <option ${item.cat === 'Subscription' ? 'selected' : ''}>Subscription</option>
+    <div class="max-w-4xl mx-auto bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
+        <h1 class="text-2xl font-bold mb-6">Zubay Engine Admin</h1>
+        
+        <div class="space-y-4">
+            <input id="name-input" type="text" placeholder="Product Name" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+            <input id="image-input" type="text" placeholder="Image URL" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+            <input id="link-input" type="text" placeholder="Page Link (e.g. roblox.html)" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+            
+            <select id="category-select" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                <option value="topups">Topup</option>
+                <option value="subs">Subscriptions</option>
             </select>
-            <div class="flex gap-2">
-              <button onclick="action('edit', '${key}')" class="flex-1 bg-purple-600 py-1 rounded text-xs font-bold">SAVE</button>
-              <button onclick="action('del', '${key}')" class="bg-red-900 px-3 rounded text-xs font-bold">DEL</button>
-            </div>
-          </div>
-        `;
-      });
-    }
 
-    async function action(type, key = '') {
-      const payload = { type, key, name: document.getElementById('in-name')?.value, image: document.getElementById('in-img')?.value, redirect: document.getElementById('in-url')?.value, cat: document.getElementById('in-cat')?.value };
-      if(type === 'edit') {
-        payload.name = document.getElementById(`n-${key}`).value;
-        payload.image = document.getElementById(`i-${key}`).value;
-        payload.redirect = document.getElementById(`u-${key}`).value;
-        payload.cat = document.getElementById(`c-${key}`).value;
-      }
-      await fetch('/api/home', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
-      load();
-    }
-    load();
-  </script>
+            <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-500 p-3 rounded-lg font-bold transition">ADD PRODUCT</button>
+        </div>
+    </div>
+
+    <script>
+        const BIN_ID = "6a5511e3f5f4af5e29895352";
+        const MASTER_KEY = "$2a$10$egKxhR.4VvU.SAwShVHqJOYSzrT8NzDO2Kb5PaKiME8Q371dK3OPC";
+
+        async function addProduct() {
+            const name = document.getElementById('name-input').value;
+            const img = document.getElementById('image-input').value;
+            const link = document.getElementById('link-input').value;
+            const category = document.getElementById('category-select').value;
+
+            if (!name || !img || !link) {
+                alert("Sabhi fields bharna zaroori hai!");
+                return;
+            }
+
+            try {
+                // 1. Purana data fetch karo
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { "X-Access-Key": MASTER_KEY }
+                });
+                const currentData = await res.json();
+                
+                // 2. Naya product push karo
+                currentData.record[category].push({
+                    name: name,
+                    image: img,
+                    link: link
+                });
+
+                // 3. Update karo (PUT request)
+                const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Master-Key": MASTER_KEY
+                    },
+                    body: JSON.stringify(currentData.record)
+                });
+
+                if (updateRes.ok) {
+                    alert("Product Added Successfully!");
+                    // Fields clear kar do
+                    document.getElementById('name-input').value = '';
+                    document.getElementById('image-input').value = '';
+                    document.getElementById('link-input').value = '';
+                } else {
+                    alert("Error: Data save nahi ho paya.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error aa raha hai, console check karo.");
+            }
+        }
+    </script>
 </body>
 </html>
