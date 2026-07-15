@@ -9,29 +9,23 @@
 <body class="bg-[#0b111e] text-white p-10">
 
     <div class="max-w-4xl mx-auto space-y-8">
-        <!-- Add/Edit Section -->
         <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
             <h1 class="text-2xl font-bold mb-6">Product Manager</h1>
             <div class="space-y-4">
                 <input id="name-input" type="text" autocomplete="off" placeholder="Product Name" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
                 <input id="image-input" type="text" autocomplete="off" placeholder="Image URL" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
                 <input id="link-input" type="text" autocomplete="off" placeholder="Page Link" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-                
                 <select id="category-select" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
                     <option value="topups">Topup</option>
                     <option value="subs">Subscriptions</option>
                 </select>
-                
                 <button onclick="saveProduct()" class="w-full bg-green-600 hover:bg-green-500 p-3 rounded-lg font-bold transition">SAVE PRODUCT</button>
             </div>
         </div>
 
-        <!-- Manage List -->
         <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
             <h2 class="text-xl font-bold mb-4">Existing Products</h2>
-            <div id="product-list" class="space-y-3">
-                <p class="text-gray-500">Loading...</p>
-            </div>
+            <div id="product-list" class="space-y-3"></div>
         </div>
     </div>
 
@@ -41,23 +35,25 @@
 
         async function loadProducts() {
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
                 const data = await res.json();
                 const record = data.record;
                 const container = document.getElementById('product-list');
                 container.innerHTML = '';
 
                 ['topups', 'subs'].forEach(cat => {
-                    record[cat].forEach((p, i) => {
-                        container.innerHTML += `
-                            <div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-                                <span><strong>${cat.toUpperCase()}:</strong> ${p.name}</span>
-                                <div class="space-x-4">
-                                    <button onclick="editProduct('${cat}', ${i})" class="text-blue-400 hover:text-blue-300">Edit</button>
-                                    <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400 hover:text-red-300">Delete</button>
-                                </div>
-                            </div>`;
-                    });
+                    if (record[cat]) {
+                        record[cat].forEach((p, i) => {
+                            container.innerHTML += `
+                                <div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                                    <span><strong>${cat.toUpperCase()}:</strong> ${p.name}</span>
+                                    <div class="space-x-4">
+                                        <button onclick="editProduct('${cat}', ${i})" class="text-blue-400">Edit</button>
+                                        <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button>
+                                    </div>
+                                </div>`;
+                        });
+                    }
                 });
             } catch (e) {
                 document.getElementById('product-list').innerHTML = "Error loading products.";
@@ -72,9 +68,8 @@
 
             if(!name || !img || !link) return alert("All fields required!");
 
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
             const data = await res.json();
-            
             data.record[cat].push({ name, image: img, link: link });
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -90,7 +85,7 @@
         }
 
         async function deleteProduct(cat, i) {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
             const data = await res.json();
             data.record[cat].splice(i, 1);
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -102,7 +97,7 @@
         }
 
         function editProduct(cat, i) {
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } })
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } })
             .then(res => res.json())
             .then(data => {
                 const p = data.record[cat][i];
@@ -113,7 +108,6 @@
                 deleteProduct(cat, i);
             });
         }
-
         loadProducts();
     </script>
 </body>
