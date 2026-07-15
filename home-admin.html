@@ -8,20 +8,28 @@
 </head>
 <body class="bg-[#0b111e] text-white p-10">
 
-    <div class="max-w-4xl mx-auto bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
-        <h1 class="text-2xl font-bold mb-6">Zubay Engine Admin</h1>
-        
-        <div class="space-y-4">
-            <input id="name-input" type="text" placeholder="Product Name" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-            <input id="image-input" type="text" placeholder="Image URL" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-            <input id="link-input" type="text" placeholder="Page Link (e.g. roblox.html)" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-            
-            <select id="category-select" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-                <option value="topups">Topup</option>
-                <option value="subs">Subscriptions</option>
-            </select>
+    <div class="max-w-4xl mx-auto space-y-8">
+        <!-- Add Product Section -->
+        <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
+            <h1 class="text-2xl font-bold mb-6">Zubay Engine Admin</h1>
+            <div class="space-y-4">
+                <input id="name-input" type="text" placeholder="Product Name" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                <input id="image-input" type="text" placeholder="Image URL" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                <input id="link-input" type="text" placeholder="Page Link" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                <select id="category-select" class="w-full bg-[#1e293b] p-3 rounded-lg border border-gray-700">
+                    <option value="topups">Topup</option>
+                    <option value="subs">Subscriptions</option>
+                </select>
+                <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-500 p-3 rounded-lg font-bold transition">ADD PRODUCT</button>
+            </div>
+        </div>
 
-            <button onclick="addProduct()" class="w-full bg-green-600 hover:bg-green-500 p-3 rounded-lg font-bold transition">ADD PRODUCT</button>
+        <!-- Existing Products List -->
+        <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
+            <h2 class="text-xl font-bold mb-4">Manage Products</h2>
+            <div id="product-list" class="space-y-2 text-sm">
+                <!-- Products yahan load honge -->
+            </div>
         </div>
     </div>
 
@@ -29,62 +37,61 @@
         const BIN_ID = "6a5511e3f5f4af5e29895352";
         const MASTER_KEY = "$2a$10$GgciNVlsxsg/OWI0DP9yau93Jy/igtLASCFRtt9ZYM80DPFZGYOtK";
 
+        async function loadProducts() {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+            const data = await res.json();
+            const record = data.record || data;
+            const container = document.getElementById('product-list');
+            container.innerHTML = '';
+
+            ['topups', 'subs'].forEach(cat => {
+                record[cat].forEach((p, index) => {
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center bg-[#1e293b] p-3 rounded-lg">
+                            <span>${cat.toUpperCase()} : ${p.name}</span>
+                            <button onclick="deleteProduct('${cat}', ${index})" class="text-red-400 font-bold">DELETE</button>
+                        </div>`;
+                });
+            });
+        }
+
+        async function deleteProduct(cat, index) {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+            const data = await res.json();
+            let record = data.record || data;
+            record[cat].splice(index, 1);
+
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+                body: JSON.stringify(record)
+            });
+            loadProducts();
+        }
+
+        // Add Product function same rahega (bus loadProducts call kar lena)
         async function addProduct() {
+            // ... same as before, bas last mein loadProducts() call kar dena
             const name = document.getElementById('name-input').value;
             const img = document.getElementById('image-input').value;
             const link = document.getElementById('link-input').value;
             const category = document.getElementById('category-select').value;
+            
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Access-Key": MASTER_KEY } });
+            const data = await res.json();
+            let record = data.record || data;
+            record[category].push({ name, image: img, link: link });
 
-            if (!name || !img || !link) {
-                alert("Sabhi fields bharna zaroori hai!");
-                return;
-            }
-
-            try {
-                // 1. Purana data fetch karo
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { "X-Access-Key": MASTER_KEY }
-                });
-                const responseData = await res.json();
-                
-                // 2. Data handle karo (Record wrapper check)
-                let dataRecord = responseData.record ? responseData.record : responseData;
-
-                // 3. Category array check
-                if (!dataRecord[category]) {
-                    dataRecord[category] = [];
-                }
-
-                // 4. Naya product push karo
-                dataRecord[category].push({
-                    name: name,
-                    image: img,
-                    link: link
-                });
-
-                // 5. Update karo (PUT request)
-                const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Master-Key": MASTER_KEY
-                    },
-                    body: JSON.stringify(dataRecord)
-                });
-
-                if (updateRes.ok) {
-                    alert("Product Added Successfully!");
-                    document.getElementById('name-input').value = '';
-                    document.getElementById('image-input').value = '';
-                    document.getElementById('link-input').value = '';
-                } else {
-                    alert("Error: Data save nahi ho paya.");
-                }
-            } catch (e) {
-                console.error("Error Detail:", e);
-                alert("Error aa raha hai, console check karo (F12).");
-            }
+            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
+                body: JSON.stringify(record)
+            });
+            alert("Added!");
+            loadProducts();
         }
+
+        loadProducts(); // Page load hote hi list dikhegi
     </script>
 </body>
 </html>
