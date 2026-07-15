@@ -45,28 +45,35 @@
                 const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                     headers: { "X-Access-Key": MASTER_KEY }
                 });
-                const currentData = await res.json();
+                const responseData = await res.json();
                 
-                // 2. Naya product push karo
-                currentData.record[category].push({
+                // 2. Data handle karo (Record wrapper check)
+                let dataRecord = responseData.record ? responseData.record : responseData;
+
+                // 3. Category array check
+                if (!dataRecord[category]) {
+                    dataRecord[category] = [];
+                }
+
+                // 4. Naya product push karo
+                dataRecord[category].push({
                     name: name,
                     image: img,
                     link: link
                 });
 
-                // 3. Update karo (PUT request)
+                // 5. Update karo (PUT request)
                 const updateRes = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                     method: 'PUT',
                     headers: {
                         "Content-Type": "application/json",
                         "X-Master-Key": MASTER_KEY
                     },
-                    body: JSON.stringify(currentData.record)
+                    body: JSON.stringify(dataRecord)
                 });
 
                 if (updateRes.ok) {
                     alert("Product Added Successfully!");
-                    // Fields clear kar do
                     document.getElementById('name-input').value = '';
                     document.getElementById('image-input').value = '';
                     document.getElementById('link-input').value = '';
@@ -74,8 +81,8 @@
                     alert("Error: Data save nahi ho paya.");
                 }
             } catch (e) {
-                console.error(e);
-                alert("Error aa raha hai, console check karo.");
+                console.error("Error Detail:", e);
+                alert("Error aa raha hai, console check karo (F12).");
             }
         }
     </script>
