@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zubay Engine Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0b111e] text-white p-10">
-
     <div class="max-w-4xl mx-auto space-y-8">
         <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
             <h1 class="text-2xl font-bold mb-6">Product Manager</h1>
@@ -19,7 +17,7 @@
                     <option value="topups">Topup</option>
                     <option value="subs">Subscriptions</option>
                 </select>
-                <button onclick="saveProduct()" class="w-full bg-green-600 hover:bg-green-500 p-3 rounded-lg font-bold transition">SAVE PRODUCT</button>
+                <button onclick="saveProduct()" class="w-full bg-green-600 p-3 rounded-lg font-bold">SAVE PRODUCT</button>
             </div>
         </div>
 
@@ -34,11 +32,13 @@
         const MASTER_KEY = "$2a$10$GgciNVlsxsg/OWI0DP9yau93Jy/igtLASCFRtt9ZYM80DPFZGYOtK";
 
         async function loadProducts() {
+            const container = document.getElementById('product-list');
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
+                    headers: { "X-Master-Key": MASTER_KEY } 
+                });
                 const data = await res.json();
                 const record = data.record;
-                const container = document.getElementById('product-list');
                 container.innerHTML = '';
 
                 ['topups', 'subs'].forEach(cat => {
@@ -46,9 +46,8 @@
                         record[cat].forEach((p, i) => {
                             container.innerHTML += `
                                 <div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-                                    <span><strong>${cat.toUpperCase()}:</strong> ${p.name}</span>
+                                    <span>${cat.toUpperCase()}: ${p.name}</span>
                                     <div class="space-x-4">
-                                        <button onclick="editProduct('${cat}', ${i})" class="text-blue-400">Edit</button>
                                         <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button>
                                     </div>
                                 </div>`;
@@ -56,7 +55,7 @@
                     }
                 });
             } catch (e) {
-                document.getElementById('product-list').innerHTML = "Error loading products.";
+                container.innerHTML = "Error loading. Check your API Key in code.";
             }
         }
 
@@ -66,10 +65,11 @@
             const link = document.getElementById('link-input').value;
             const cat = document.getElementById('category-select').value;
 
-            if(!name || !img || !link) return alert("All fields required!");
-
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
+                headers: { "X-Master-Key": MASTER_KEY } 
+            });
             const data = await res.json();
+            
             data.record[cat].push({ name, image: img, link: link });
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -78,14 +78,13 @@
                 body: JSON.stringify(data.record)
             });
             alert("Product Saved!");
-            document.getElementById('name-input').value = '';
-            document.getElementById('image-input').value = '';
-            document.getElementById('link-input').value = '';
             loadProducts();
         }
 
         async function deleteProduct(cat, i) {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
+                headers: { "X-Master-Key": MASTER_KEY } 
+            });
             const data = await res.json();
             data.record[cat].splice(i, 1);
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
@@ -96,18 +95,6 @@
             loadProducts();
         }
 
-        function editProduct(cat, i) {
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } })
-            .then(res => res.json())
-            .then(data => {
-                const p = data.record[cat][i];
-                document.getElementById('name-input').value = p.name;
-                document.getElementById('image-input').value = p.image;
-                document.getElementById('link-input').value = p.link;
-                document.getElementById('category-select').value = cat;
-                deleteProduct(cat, i);
-            });
-        }
         loadProducts();
     </script>
 </body>
