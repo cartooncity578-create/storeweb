@@ -38,8 +38,8 @@
                     headers: { "X-Master-Key": MASTER_KEY } 
                 });
                 const data = await res.json();
-                // JSONBin v3 response mein 'record' key hoti hai
-                const record = data.record;
+                // JSON structure direct le rahe hain
+                const record = data.record || data; 
                 container.innerHTML = '';
 
                 ['topups', 'subs'].forEach(cat => {
@@ -54,7 +54,7 @@
                     }
                 });
             } catch (e) {
-                container.innerHTML = "Error loading. Check API Key or Bin Structure.";
+                container.innerHTML = "Error loading products.";
             }
         }
 
@@ -69,13 +69,14 @@
             });
             const data = await res.json();
             
-            // Push new data
-            data.record[cat].push({ name, image: img, link: link });
+            // Yahan data.record hata diya hai
+            let record = data.record || data;
+            record[cat].push({ name, image: img, link: link });
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(data.record)
+                body: JSON.stringify(record)
             });
             alert("Product Saved!");
             loadProducts();
@@ -86,11 +87,12 @@
                 headers: { "X-Master-Key": MASTER_KEY } 
             });
             const data = await res.json();
-            data.record[cat].splice(i, 1);
+            let record = data.record || data;
+            record[cat].splice(i, 1);
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(data.record)
+                body: JSON.stringify(record)
             });
             loadProducts();
         }
