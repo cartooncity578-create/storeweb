@@ -38,6 +38,7 @@
                     headers: { "X-Master-Key": MASTER_KEY } 
                 });
                 const data = await res.json();
+                // JSONBin v3 response mein 'record' key hoti hai
                 const record = data.record;
                 container.innerHTML = '';
 
@@ -47,15 +48,13 @@
                             container.innerHTML += `
                                 <div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700">
                                     <span>${cat.toUpperCase()}: ${p.name}</span>
-                                    <div class="space-x-4">
-                                        <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button>
-                                    </div>
+                                    <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button>
                                 </div>`;
                         });
                     }
                 });
             } catch (e) {
-                container.innerHTML = "Error loading. Check your API Key in code.";
+                container.innerHTML = "Error loading. Check API Key or Bin Structure.";
             }
         }
 
@@ -70,6 +69,7 @@
             });
             const data = await res.json();
             
+            // Push new data
             data.record[cat].push({ name, image: img, link: link });
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
