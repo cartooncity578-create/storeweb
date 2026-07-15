@@ -20,7 +20,6 @@
                 <button onclick="saveProduct()" class="w-full bg-green-600 p-3 rounded-lg font-bold">SAVE PRODUCT</button>
             </div>
         </div>
-
         <div class="bg-[#0f172a] p-8 rounded-2xl border border-gray-800">
             <h2 class="text-xl font-bold mb-4">Existing Products</h2>
             <div id="product-list" class="space-y-3"></div>
@@ -31,31 +30,26 @@
         const BIN_ID = "6a5511e3f5f4af5e29895352";
         const MASTER_KEY = "$2a$10$GgciNVlsxsg/OWI0DP9yau93Jy/igtLASCFRtt9ZYM80DPFZGYOtK";
 
+        async function getFullData() {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { "X-Master-Key": MASTER_KEY } });
+            const json = await res.json();
+            // Agar 'record' property hai to use lo, varna seedha json object
+            return json.record ? json.record : json;
+        }
+
         async function loadProducts() {
             const container = document.getElementById('product-list');
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
-                    headers: { "X-Master-Key": MASTER_KEY } 
-                });
-                const data = await res.json();
-                // JSON structure direct le rahe hain
-                const record = data.record || data; 
+                const data = await getFullData();
                 container.innerHTML = '';
-
                 ['topups', 'subs'].forEach(cat => {
-                    if (record[cat]) {
-                        record[cat].forEach((p, i) => {
-                            container.innerHTML += `
-                                <div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700">
-                                    <span>${cat.toUpperCase()}: ${p.name}</span>
-                                    <button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button>
-                                </div>`;
+                    if (data[cat] && Array.isArray(data[cat])) {
+                        data[cat].forEach((p, i) => {
+                            container.innerHTML += `<div class="flex justify-between bg-[#1e293b] p-3 rounded-lg border border-gray-700"><span>${cat.toUpperCase()}: ${p.name}</span><button onclick="deleteProduct('${cat}', ${i})" class="text-red-400">Delete</button></div>`;
                         });
                     }
                 });
-            } catch (e) {
-                container.innerHTML = "Error loading products.";
-            }
+            } catch (e) { container.innerHTML = "Error loading products."; }
         }
 
         async function saveProduct() {
@@ -63,40 +57,33 @@
             const img = document.getElementById('image-input').value;
             const link = document.getElementById('link-input').value;
             const cat = document.getElementById('category-select').value;
-
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
-                headers: { "X-Master-Key": MASTER_KEY } 
-            });
-            const data = await res.json();
             
-            // Yahan data.record hata diya hai
-            let record = data.record || data;
-            record[cat].push({ name, image: img, link: link });
+            const data = await getFullData();
+            // Data ka structure ensure karo
+            if(!data.topups) data.topups = [];
+            if(!data.subs) data.subs = [];
+            
+            data[cat].push({ name, image: img, link: link });
 
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(record)
+                body: JSON.stringify(data)
             });
             alert("Product Saved!");
             loadProducts();
         }
 
         async function deleteProduct(cat, i) {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
-                headers: { "X-Master-Key": MASTER_KEY } 
-            });
-            const data = await res.json();
-            let record = data.record || data;
-            record[cat].splice(i, 1);
+            const data = await getFullData();
+            data[cat].splice(i, 1);
             await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(record)
+                body: JSON.stringify(data)
             });
             loadProducts();
         }
-
         loadProducts();
     </script>
 </body>
