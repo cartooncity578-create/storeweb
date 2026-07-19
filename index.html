@@ -2,16 +2,82 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ZubayGames</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZubayGames - Premium Game Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body class="bg-[#0b111e] text-white">
-  <header class="p-5 border-b border-gray-800 flex justify-between items-center">
-    <h1 class="text-2xl font-black text-cyan-400">ZUBAYGAMES</h1>
+<body class="bg-[#0b111e] text-white font-sans">
+
+  <!-- LOGIN MODAL -->
+  <div id="login-modal" class="fixed inset-0 bg-[#0b111e]/95 backdrop-blur-xl z-[100] flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-gray-800 w-full max-w-md p-8 rounded-2xl shadow-2xl text-center relative">
+      <h2 class="text-2xl font-black text-cyan-400 mb-4">ZubayGames</h2>
+      <div id="g_id_onload" data-client_id="553436437827-hdp6q3siq48d3peq4090bssvjroqtbkr.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+      <div class="g_id_signin" data-type="standard" data-theme="dark" data-size="large"></div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-black text-cyan-400">ZUBAY<span class="text-white">GAMES</span></h1>
+      <button onclick="openModal()" id="signin-btn" class="bg-cyan-600 px-4 py-2 rounded-xl text-xs font-bold uppercase">Sign In</button>
+      <div id="user-profile" class="hidden flex items-center gap-2 bg-gray-800 px-3 py-1 rounded-full">
+        <img id="user-img" src="" class="w-7 h-7 rounded-full">
+        <span id="user-name" class="text-xs font-bold"></span>
+      </div>
+    </div>
   </header>
-  <main class="p-10 text-center">
-    <h2 class="text-3xl font-bold">Welcome to ZubayGames</h2>
-    <p class="text-gray-400 mt-2">Store is loading...</p>
+
+  <!-- STORE CONTENT -->
+  <main class="max-w-7xl mx-auto px-4 py-10 space-y-12">
+    <section id="game-topup-section">
+      <h2 class="text-xl font-bold border-b border-gray-800 pb-2 mb-6">Game Top Up</h2>
+      <div id="topup-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+    </section>
   </main>
+
+  <script>
+    const BIN_ID = "6a5511e3f5f4af5e29895352";
+    const API_KEY = "$2a$10$egKxhR.4VvU.SAwShVHqJOYSzrT8NzDO2Kb5PaKiME8Q371dK3OPC";
+    let isLoggedIn = false;
+
+    async function fetchStoreData() {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Access-Key": API_KEY }
+        });
+        const json = await res.json();
+        const data = json.record || json;
+        
+        const grid = document.getElementById('topup-grid');
+        grid.innerHTML = (data.topups || []).map(item => `
+          <div onclick="handleGameClick('${item.link}')" class="bg-[#131b2e] rounded-xl border border-gray-800 p-2 cursor-pointer hover:scale-105 transition">
+            <img src="${item.image}" class="w-full h-32 object-cover rounded-lg">
+            <div class="p-2 text-center text-xs font-bold">${item.name}</div>
+          </div>
+        `).join('');
+      } catch (e) { console.error("Error loading products"); }
+    }
+
+    function handleGameClick(link) {
+      if (!isLoggedIn) return openModal();
+      window.location.href = link;
+    }
+
+    function handleCredentialResponse(response) {
+      const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      document.getElementById('user-name').innerText = payload.name;
+      document.getElementById('user-img').src = payload.picture;
+      isLoggedIn = true;
+      document.getElementById('signin-btn').classList.add('hidden');
+      document.getElementById('user-profile').classList.remove('hidden');
+      document.getElementById('login-modal').classList.add('hidden');
+    }
+
+    function openModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+    document.addEventListener('DOMContentLoaded', fetchStoreData);
+  </script>
 </body>
 </html>
