@@ -3,41 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZubayGames - Premium Store</title>
+  <title>ZubayGames - Premium Game Store</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0b111e] text-white">
+<body class="bg-[#0b111e] text-white font-sans">
 
-  <!-- STOREFRONT SECTION (Default) -->
-  <div id="store-view">
-    <header class="p-6 border-b border-gray-800 flex justify-between items-center">
-      <h1 class="text-2xl font-black text-cyan-400">ZUBAYGAMES</h1>
-      <button onclick="showAdmin()" class="text-xs text-gray-500 hover:text-white">Admin</button>
-    </header>
-    <main class="p-10 text-center">
-      <h2 class="text-3xl font-bold">Welcome to ZubayGames</h2>
-      <p class="text-gray-400">Store is loading...</p>
-    </main>
-  </div>
+  <!-- HEADER -->
+  <header class="p-6 border-b border-gray-800 flex justify-between items-center">
+    <h1 class="text-2xl font-black text-cyan-400">ZUBAYGAMES</h1>
+  </header>
 
-  <!-- ADMIN SECTION (Hidden by default) -->
-  <div id="admin-view" class="hidden p-10">
-    <h2 class="text-2xl font-bold text-red-500">Product Manager</h2>
-    <div class="mt-4 space-y-4">
-      <input type="text" placeholder="Product Name" class="block w-full p-2 bg-gray-800 rounded">
-      <button onclick="hideAdmin()" class="bg-gray-600 p-2 rounded">Back to Store</button>
+  <!-- STORE CONTENT -->
+  <main class="max-w-7xl mx-auto px-4 py-10">
+    <h2 class="text-xl font-bold border-b border-gray-800 pb-2 mb-6">Game Top Up</h2>
+    <div id="topup-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+      <!-- Products yahan load honge -->
     </div>
-  </div>
+  </main>
 
   <script>
-    function showAdmin() {
-      document.getElementById('store-view').classList.add('hidden');
-      document.getElementById('admin-view').classList.remove('hidden');
+    const BIN_ID = "6a5511e3f5f4af5e29895352";
+    const API_KEY = "$2a$10$egKxhR.4VvU.SAwShVHqJOYSzrT8NzDO2Kb5PaKiME8Q371dK3OPC";
+
+    async function fetchStoreData() {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { "X-Access-Key": API_KEY }
+        });
+        const json = await res.json();
+        const data = json.record || json;
+        
+        const grid = document.getElementById('topup-grid');
+        grid.innerHTML = (data.topups || []).map(item => `
+          <div class="bg-[#131b2e] rounded-xl border border-gray-800 p-2 hover:scale-105 transition">
+            <img src="${item.image}" class="w-full h-32 object-cover rounded-lg">
+            <div class="p-2 text-center text-xs font-bold">${item.name}</div>
+          </div>
+        `).join('');
+      } catch (e) { 
+        console.error("Error:", e); 
+      }
     }
-    function hideAdmin() {
-      document.getElementById('store-view').classList.remove('hidden');
-      document.getElementById('admin-view').classList.add('hidden');
-    }
+    fetchStoreData();
   </script>
 </body>
 </html>
