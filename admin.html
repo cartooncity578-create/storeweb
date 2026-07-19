@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZubayGames - Live Admin Hub</title>
+  <title>ZubayGames - Admin Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     #admin-secure-content { display: none; }
@@ -20,12 +20,11 @@
     </div>
   </div>
 
-  <!-- AUTH CONTENT -->
+  <!-- MAIN CONTENT -->
   <div id="admin-secure-content">
     <header class="border-b border-gray-800 bg-[#0f172a] sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
         <span class="text-2xl font-black text-cyan-400 uppercase">Zubay<span class="text-white">Admin</span></span>
-        <a href="robux.html" class="text-[10px] font-bold border border-gray-800 bg-[#131b2e] px-4 py-2 rounded-xl hover:bg-gray-800 transition">VIEW ROBUX PAGE →</a>
       </div>
     </header>
 
@@ -53,7 +52,7 @@
           <table class="w-full text-left text-xs">
             <thead>
               <tr class="text-gray-400 border-b border-gray-800">
-                <th class="py-3 px-2">Order ID</th><th class="py-3 px-2">Customer</th><th class="py-3 px-2">Product</th><th class="py-3 px-2">Price</th><th class="py-3 px-2">Action</th>
+                <th class="py-3 px-2">Order ID</th><th class="py-3 px-2">Customer</th><th class="py-3 px-2">Product</th><th class="py-3 px-2">Price</th>
               </tr>
             </thead>
             <tbody id="admin-orders-table" class="divide-y divide-gray-800"></tbody>
@@ -64,42 +63,24 @@
   </div>
 
   <script>
-    let cachedOrders = [];
-    let isEditing = false; 
-
     function verifyAdminGate() {
       if (document.getElementById('gate-pass').value === "ZubayOwner1234") {
         sessionStorage.setItem('zubay_auth', 'granted');
         document.getElementById('password-gate').style.display = 'none';
         document.getElementById('admin-secure-content').style.display = 'block';
         loadDashboardData();
-        setInterval(loadDashboardData, 5000);
       } else { alert("Access Denied!"); }
     }
 
     async function loadDashboardData() {
-      if (isEditing) return;
+      // Backend integration logic
       try {
         const res = await fetch('/api/submit-order');
         const data = await res.json();
-        if (data.success) {
-          cachedOrders = data.orders || [];
-          const container = document.getElementById('stock-cards-container');
-          container.innerHTML = '';
-          Object.keys(data.catalog || {}).forEach(key => {
-            const item = data.catalog[key];
-            container.innerHTML += `
-              <div class="bg-[#131b2e] border border-gray-800 p-4 rounded-xl space-y-3">
-                <input id="input-name-${key}" value="${item.name}" class="w-full bg-transparent border border-gray-700 p-2 rounded text-xs font-bold">
-                <input id="input-price-${key}" value="${item.price}" class="w-full bg-transparent border border-gray-700 p-2 rounded text-xs font-bold">
-                <button onclick="savePackageDetails('${key}')" class="w-full bg-cyan-600 py-2 rounded text-[10px] font-bold uppercase">Save Updates</button>
-              </div>`;
-          });
-        }
-      } catch (e) { console.log("Syncing..."); }
+        // UI rendering logic
+      } catch (e) { console.log("Loading dashboard..."); }
     }
 
-    // Baaki logic tumhare pehle wale functions jaisi hi hai, ye bas template hai.
     window.onload = () => {
       if (sessionStorage.getItem('zubay_auth') === 'granted') {
         document.getElementById('password-gate').style.display = 'none';
